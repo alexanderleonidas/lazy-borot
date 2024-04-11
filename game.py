@@ -19,7 +19,7 @@ class Game:
 
         self.map = World(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.canvas = Picasso(self.map)
-        self.map.build_map()
+        self.map.build_map(obstacles=100, obstacle_width=40, obstacle_height=40)
 
     def run(self):
         running = True

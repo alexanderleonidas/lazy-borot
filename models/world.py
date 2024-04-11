@@ -22,18 +22,34 @@ class World:
         self.add_wall((0, 0), (WALL_SIZE, self.height))
         self.add_wall((self.width - WALL_SIZE, 0), (self.width, self.height))
 
-    def build_map(self, num_walls=5):
+    def build_map(self, obstacles=20, obstacle_width=WALL_SIZE, obstacle_height=WALL_SIZE):
         self.build_boundary_walls()
 
-        # TODO: Generate Random Walls
-        self.add_wall((0, 100), (700, WALL_SIZE))
-        self.add_wall((900, 100), (self.width, WALL_SIZE))
-        self.add_wall((100, 200), (self.width, WALL_SIZE))
-        self.add_wall((100, 200), (WALL_SIZE, 300))
-        self.add_wall((100, 400), (800, WALL_SIZE))
-        self.add_wall((500, 400), (WALL_SIZE, 250))
-        self.add_wall((800, 500), (WALL_SIZE, 250))
-        self.add_wall((1100, 300), (WALL_SIZE, 325))
+        for _ in range(obstacles):
+            lim = 0
+            while True:
+                x = random.randint(1, (self.width - obstacle_width) // obstacle_width) * obstacle_width
+                y = random.randint(1, (self.height - obstacle_height) // obstacle_height) * obstacle_height
+
+                if obstacle_height < y < self.height - 2 * obstacle_height:
+                    self.add_wall((x, y), (obstacle_width, obstacle_height))
+                    break
+
+                # Break if the loop runs for too long
+                if lim > 100:
+                    break
+
+                lim += 1
+
+        # # TODO: Generate Random Walls
+        # self.add_wall((0, 100), (700, WALL_SIZE))
+        # self.add_wall((900, 100), (self.width, WALL_SIZE))
+        # self.add_wall((100, 200), (self.width, WALL_SIZE))
+        # self.add_wall((100, 200), (WALL_SIZE, 300))
+        # self.add_wall((100, 400), (800, WALL_SIZE))
+        # self.add_wall((500, 400), (WALL_SIZE, 250))
+        # self.add_wall((800, 500), (WALL_SIZE, 250))
+        # self.add_wall((1100, 300), (WALL_SIZE, 325))
 
     def spawn(self):
         self.borot.position = (50, 50)

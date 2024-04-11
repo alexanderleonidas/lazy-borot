@@ -23,6 +23,7 @@ class Game:
 
     def run(self):
         running = True
+        self.map.spawn()
 
         while running:
             for event in pygame.event.get():
@@ -30,6 +31,7 @@ class Game:
                     running = False
 
             self.canvas.draw_map()
+            self.canvas.draw_robot(self.map.borot.position, self.map.borot.radius, self.map.borot.rotation)
 
             self.screen.blit(self.canvas.map_surface, (0, 0))
             pygame.display.flip()

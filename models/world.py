@@ -1,6 +1,8 @@
 import random
 from typing import Tuple
 
+from models.borot import Borot
+
 WALL_SIZE = 20
 
 
@@ -9,6 +11,7 @@ class World:
         self.width = width
         self.height = height
         self.walls = []
+        self.borot = Borot("Borot", self)
 
     def add_wall(self, top_left: Tuple[int, int], bottom_right: Tuple[int, int]):
         self.walls.append(Wall(top_left, bottom_right))
@@ -31,6 +34,10 @@ class World:
         self.add_wall((500, 400), (WALL_SIZE, 250))
         self.add_wall((800, 500), (WALL_SIZE, 250))
         self.add_wall((1100, 300), (WALL_SIZE, 325))
+
+    def spawn(self):
+        self.borot.position = (50, 50)
+
 
 
 class Wall:

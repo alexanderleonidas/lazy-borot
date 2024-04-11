@@ -1,10 +1,12 @@
 from typing import Tuple
 
+BOROT_SIZE = 10
 
 class Borot:
     def __init__(self, name, world) -> None:
         self.name = name
         self.position: Tuple[int, int] = (0, 0)
+        self.radius = BOROT_SIZE
         self.world = world
         self.velocity: Tuple[float, float] = (0, 0)  # Left and Right Wheel
         self.rotation = 0

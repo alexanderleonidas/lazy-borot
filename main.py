@@ -19,7 +19,7 @@ world.build()
 player_pos = world.borot.position
 screen = canvas.screen
 sensor=Sensors(player_pos, screen)
-sensor.cast_rays()
+
 
 while True:
     for event in pygame.event.get():
@@ -28,10 +28,10 @@ while True:
             sys.exit()
 
     canvas.screen.fill(canvas.WHITE)
-    canvas.draw_obstacle_course()
+    # canvas.draw_obstacle_course()
+    canvas.draw_maze()
     canvas.draw_robot(player_pos, world.radius, world.borot.rotation)
-    sensor.detect_collisions()
-    sensor.draw_sensors()
+    sensor.test_cast_rays()
     
     canvas.screen.blit(canvas.map_surface, (0, 0))
     pygame.display.flip()

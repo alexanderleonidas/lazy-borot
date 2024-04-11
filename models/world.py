@@ -27,29 +27,6 @@ class World:
 
             self.obstacles.append((position[0], position[1], size[0], size[1]))
 
-    def generate_maze(self):
-        # Initialize the maze with walls (1)
-        self.obstacles = [[1 for _ in range(self.width)] for _ in range(self.height)]
-
-        # Random starting point
-        start_x = random.randrange(0, self.width, 2)
-        start_y = random.randrange(0, self.height, 2)
-        self.obstacles[start_y][start_x] = 0
-
-        # Start carving paths
-        self.carve_path(start_x, start_y, self.columns, self.rows)
-
-    def carve_path(self, x: int, y: int, width: int, height: int) -> None:
-        directions = [(0, -2), (2, 0), (0, 2), (-2, 0)]
-        random.shuffle(directions)
-
-        for dx, dy in directions:
-            new_x, new_y = x + dx, y + dy
-            if 0 <= new_x < width and 0 <= new_y < height and self.obstacles[new_y][new_x] == 1:
-                self.obstacles[new_y][new_x] = 0
-                self.obstacles[new_y - dy // 2][new_x - dx // 2] = 0
-                self.carve_path(new_x, new_y, width, height)
-
     def initial_position(self):
         open_spaces = []
 
@@ -66,7 +43,7 @@ class World:
         self.radius = self.cell_size // 2.5
 
     def build(self):
-        # self.generate_maze()
-        self.generate_obstacle_course()
+        self.generate_maze()
+        # self.generate_obstacle_course()
         self.initial_position()
 

@@ -14,7 +14,7 @@ class Sensors:
 
     def test_cast_rays(self):
         temp_angle = 0
-        for i in range(12):
+        for _ in range(12):
             end_x = self.player_pos[0] + math.cos(temp_angle) * self.sensor_length
             end_y = self.player_pos[1] + math.sin(temp_angle) * self.sensor_length
             pygame.draw.line(self.screen, (0, 0, 0), (self.player_pos[0], self.player_pos[1]), (end_x, end_y), 1)

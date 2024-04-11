@@ -1,11 +1,11 @@
 import pygame
 import sys
 
-from utils.picasso import Graphics
+from utils.picasso import Picasso
 
 # Initialize the game
 dimensions = (25,31)
-gfx = Graphics(dimensions)
+gfx = Picasso(dimensions)
 clock = pygame.time.Clock()
 running = True
 dt = 0

@@ -2,7 +2,8 @@ import pygame
 import sys
 import random
 
-class Graphics:
+
+class Picasso:
     def __init__(self, dimensions):
         # Initialize screen
         self.cell_size = 30
@@ -26,7 +27,7 @@ class Graphics:
 
         # Robot position
         self.robot_position = None
-    
+
     def create_obstacle_course(self, num_obstacles):
         for _ in range(num_obstacles):
             # Using vectors for position and size
@@ -74,22 +75,23 @@ class Graphics:
         for y in range(len(self.map)):
             for x in range(len(self.map[0])):
                 color = self.WHITE if self.map[y][x] == 0 else self.BLACK
-                pygame.draw.rect(self.map_surface, color, [x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size])
+                pygame.draw.rect(self.map_surface, color,
+                                 [x * self.cell_size, y * self.cell_size, self.cell_size, self.cell_size])
 
-    
     def initial_position(self):
-        open_spaces = [pygame.math.Vector2(x, y) for y, row in enumerate(self.map) for x, cell in enumerate(row) if cell == 0]
+        open_spaces = [pygame.math.Vector2(x, y) for y, row in enumerate(self.map) for x, cell in enumerate(row) if
+                       cell == 0]
         if not open_spaces:
             return  # No open spaces to draw the circle
 
         self.robot_position = random.choice(open_spaces)
-        center = (self.robot_position + pygame.Vector2(0.5,0.5)) * self.cell_size
+        center = (self.robot_position + pygame.Vector2(0.5, 0.5)) * self.cell_size
         radius = self.cell_size // 2.5
 
         return center, radius
 
-    def draw_robot(self,center,radius):
-         # Draw the Robot as a circle with a rectangle to indicate direction
+    def draw_robot(self, center, radius):
+        # Draw the Robot as a circle with a rectangle to indicate direction
         # Draw the red circle
         pygame.draw.circle(self.map_surface, self.RED, center, radius)
 
@@ -97,14 +99,14 @@ class Graphics:
         # Draw a line to indicate the front of the robot
         front_pos = center + pygame.Vector2(radius, 0).rotate(0)
         pygame.draw.line(self.map_surface, self.BLACK, center, front_pos)
-    
+
     def update_robot_position(self, direction, width, height):
         new_pos = self.robot_position + direction
         # Check if the new position is within the maze and not a wall
         if 0 <= new_pos.x < width and 0 <= new_pos.y < height:
             if self.map[int(new_pos.y)][int(new_pos.x)] == 0:
                 self.robot_position = new_pos
-    
+
     def get_robot_position(self):
         return self.robot_position
 

@@ -64,6 +64,7 @@ class World:
         chosen = random.choice(open_spaces)
         self.borot.position = chosen
         self.radius = self.cell_size // 2.5
+        self.l = self.radius * 2
 
     def build(self):
         # self.generate_maze()

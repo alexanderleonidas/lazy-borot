@@ -25,15 +25,6 @@ class Picasso:
         for obstacle in self.world.obstacles:
             pygame.draw.rect(self.map_surface, self.BLACK, Rect(Vector2(obstacle[0], obstacle[1]), Vector2(obstacle[2], obstacle[3])))
 
-    def draw_maze(self):
-        self.map_surface.fill(self.BLACK)
-        for y in range(len(self.world.obstacles)):
-            for x in range(len(self.world.obstacles[0])):
-                color = self.WHITE if self.world.obstacles[y][x] == 0 else self.BLACK
-                pygame.draw.rect(self.map_surface, color,
-                                 [x * self.world.cell_size, y * self.world.cell_size, self.world.cell_size,
-                                  self.world.cell_size])
-
     def draw_robot(self, center, radius, direction=0):
         # Draw the Robot as a circle with a rectangle to indicate direction
         # Draw the red circle

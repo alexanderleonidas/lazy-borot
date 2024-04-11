@@ -17,7 +17,7 @@ class Sensors:
         for i in range(12):
             end_x = self.player_pos[0] + math.cos(temp_angle) * self.sensor_length
             end_y = self.player_pos[1] + math.sin(temp_angle) * self.sensor_length
-            pygame.draw.line(self.screen, (0, 0, 0), (self.player_pos[0], self.player_pos[1]), (end_x, end_y), 1)
+            pygame.draw.line(self.screen, (255, 0, 0), (self.player_pos[0], self.player_pos[1]), (end_x, end_y), 1)
             temp_angle += self.STEP_ANGLE
 
     def cast_rays(self):
@@ -54,11 +54,11 @@ class Sensors:
         for sensor in self.all_sensors:
             sensor_x, sensor_y = sensor['x'], sensor['y']
             if sensor['collision_point']:
-                pygame.draw.line(self.screen, (255, 130, 100), (sensor_x, sensor_y), sensor['collision_point'], 3)
+                pygame.draw.line(self.screen,(255, 0, 0), (sensor_x, sensor_y), sensor['collision_point'], 3)
                 sensor_text = self.SENSORS_FONT.render(str(sensor['distance']), True, (255, 255, 255))
                 self.screen.blit(sensor_text, sensor['collision_point'])
             else:
                 # If no collision, optionally draw the sensor line to its maximum extent
                 end_x = sensor_x - math.sin(sensor['angle']) * sensor['distance']
                 end_y = sensor_y + math.cos(sensor['angle']) * sensor['distance']
-                pygame.draw.line(self.screen, (255, 255, 255), (sensor_x, sensor_y), (end_x, end_y), 1)
+                pygame.draw.line(self.screen, (255, 0, 0), (sensor_x, sensor_y), (end_x, end_y), 1)

@@ -21,7 +21,7 @@ class Game:
         self.map = World(SCREEN_WIDTH, SCREEN_HEIGHT)
         self.canvas = Picasso(self.map)
         self.map.build_map(obstacles=100, obstacle_width=40, obstacle_height=40)
-        self.sensors = Sensors(self.map.borot.position, self.screen)
+        #self.sensors = Sensors(self.map.borot.position, self.screen)
 
     def run(self):
         running = True
@@ -40,11 +40,14 @@ class Game:
                    keys[pygame.K_t], keys[pygame.K_g], keys[pygame.K_x]]
 
             self.map.borot.moving_keys(key, dt, self.screen, self.map.borot.radius)
-            self.sensors.cast_rays()
 
             self.canvas.draw_map()
             self.canvas.draw_robot(self.map.borot.position, self.map.borot.radius, self.map.borot.rotation)
 
             self.screen.blit(self.canvas.map_surface, (0, 0))
+            
+            self.sensors = Sensors(self.map.borot.position, self.screen)
+            self.sensors.test_cast_rays()
+            
             pygame.display.flip()
             dt = self.clock.tick(frames_per_second) / 1000

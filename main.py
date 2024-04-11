@@ -21,7 +21,7 @@ world.build()
 player_pos = world.borot.position
 screen = canvas.screen
 sensor= Sensors(player_pos, screen)
-#robot = Borot("Borot", 6)
+
 player = world.l
 
 while True:
@@ -49,5 +49,5 @@ while True:
     sensor.test_cast_rays()
     pygame.display.flip()
 
-    dt = clock.tick(60) / 1000 m
+    dt = clock.tick(60) / 1000 
 

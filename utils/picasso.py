@@ -26,10 +26,10 @@ class Picasso:
             pygame.draw.rect(self.map_surface, self.BLACK, Rect(Vector2(obstacle[0], obstacle[1]), Vector2(obstacle[2], obstacle[3])))
 
     def draw_maze(self):
-        self.map_surface.fill(self.BLACK)
+        self.map_surface.fill(self.WHITE)
         for y in range(len(self.world.obstacles)):
             for x in range(len(self.world.obstacles[0])):
-                color = self.WHITE if self.world.obstacles[y][x] == 0 else self.BLACK
+                color = self.BLACK if self.world.obstacles[y][x] == 0 else self.WHITE
                 pygame.draw.rect(self.map_surface, color,
                                  [x * self.world.cell_size, y * self.world.cell_size, self.world.cell_size,
                                   self.world.cell_size])

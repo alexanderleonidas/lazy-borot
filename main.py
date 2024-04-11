@@ -4,6 +4,7 @@ from pygame import Vector2
 
 from models.world import World
 from utils.picasso import Picasso
+from utils.sensors import Sensors
 
 dimensions = (25, 31)
 world = World(dimensions)
@@ -14,7 +15,6 @@ running = True
 dt = 0
 
 world.build()
-
 
 while True:
     for event in pygame.event.get():

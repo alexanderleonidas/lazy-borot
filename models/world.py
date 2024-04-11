@@ -50,16 +50,21 @@ class World:
                 self.carve_path(new_x, new_y, width, height)
 
     def initial_position(self):
-        open_spaces = [(x, y) for y, row in enumerate(self.obstacles) for x, cell in enumerate(row) if cell == 0]
+        open_spaces = []
+
+        for y in range(self.rows):
+            for x in range(self.columns):
+                if (x, y) not in self.obstacles:
+                    open_spaces.append((x, y))
 
         if not open_spaces:
             return 0, 0
 
         chosen = random.choice(open_spaces)
-        self.borot.position = (chosen + (0.5, 0.5)) * self.cell_size
+        self.borot.position = chosen
         radius = self.cell_size // 2.5
 
-        return (10, 10), radius
+        return self.borot.position, radius
 
     def is_open_space(self, position):
         if 0 <= position.x < self.columns and 0 <= position.y < self.rows:

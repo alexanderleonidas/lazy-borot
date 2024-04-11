@@ -5,7 +5,6 @@ from models.borot import Borot
 
 WALL_SIZE = 20
 
-
 class World:
     def __init__(self, width, height):
         self.width = width
@@ -40,7 +39,7 @@ class World:
                     break
 
                 lim += 1
-
+                
         # # TODO: Generate Random Walls
         # self.add_wall((0, 100), (700, WALL_SIZE))
         # self.add_wall((900, 100), (self.width, WALL_SIZE))
@@ -57,7 +56,6 @@ class World:
 
 
 class Wall:
-
     def __init__(self, top_left: Tuple[int, int], bottom_right: Tuple[int, int]):
         self.top_left = top_left
         self.bottom_right = bottom_right

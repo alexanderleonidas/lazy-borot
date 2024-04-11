@@ -2,21 +2,22 @@ import math
 import pygame
 
 
+# Handles collision detection
 class Sensors:
     def __init__(self, player_pos, screen):
-        self.player_pos = player_pos
+        self.player_pos: tuple = player_pos
         self.screen = screen
         # self.obstacles = obstacles  # Assume this is a list of obstacle objects
         self.STEP_ANGLE = (math.pi * 2) / 12
         self.SENSORS_FONT = pygame.font.SysFont("comicsans", 15)
-        self.sensor_length = 100  # Maximum sensor ray length
+        self.sensor_length = 80  # Maximum sensor ray length
 
     def test_cast_rays(self):
         temp_angle = 0
         for i in range(12):
             end_x = self.player_pos[0] + math.cos(temp_angle) * self.sensor_length
             end_y = self.player_pos[1] + math.sin(temp_angle) * self.sensor_length
-            pygame.draw.line(self.screen, (255, 255, 255), (self.player_pos[0], self.player_pos[1]), (end_x, end_y), 1)
+            pygame.draw.line(self.screen, (0, 0, 0), (self.player_pos[0], self.player_pos[1]), (end_x, end_y), 1)
             temp_angle += self.STEP_ANGLE
 
     def cast_rays(self):
@@ -29,6 +30,7 @@ class Sensors:
                 "angle": temp_angle,
                 "index": i
             })
+
         temp_angle += self.STEP_ANGLE
 
     def detect_collisions(self):

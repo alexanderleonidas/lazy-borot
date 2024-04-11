@@ -1,4 +1,6 @@
 from typing import Tuple
+import numpy as np
+import pygame, math
 
 import numpy as np
 
@@ -10,7 +12,6 @@ class Borot:
         self.position: Tuple[int, int] = (0, 0)
         self.radius = BOROT_SIZE
         self.world = world
-        self.velocity: Tuple[float, float] = (0, 0)  # Left and Right Wheel
         self.rotation = 0
         self.icc: Tuple[float, float] = (0, 0)  # Instantaneous Center of Curvature
         self.Vl = 0  # left velocity

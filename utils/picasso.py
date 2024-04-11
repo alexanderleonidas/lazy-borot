@@ -1,7 +1,7 @@
 import pygame
 from pygame import Rect, Vector2
 
-
+# Draws the map and robot
 class Picasso:
     def __init__(self, world):
         self.world = world

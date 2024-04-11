@@ -10,6 +10,7 @@ class World:
         self.columns: int = dimensions[1]
         self.height: int = self.rows * self.cell_size
         self.width: int = self.columns * self.cell_size
+        self.radius = 20
 
         self.borot: Borot = Borot("Borot", self)
 
@@ -54,13 +55,21 @@ class World:
         if not open_spaces:
             return 0, 0
 
-        self.borot.position = random.choice(open_spaces)
-        center = (self.borot.position + (0.5, 0.5)) * self.cell_size
+        chosen = random.choice(open_spaces)
+        self.borot.position = (chosen + (0.5, 0.5)) * self.cell_size
         radius = self.cell_size // 2.5
 
-        return center, radius
+        return (10, 10), radius
 
     def is_open_space(self, position):
         if 0 <= position.x < self.columns and 0 <= position.y < self.rows:
             return self.obstacles[int(position.y)][int(position.x)] == 0
         return False
+
+    def build(self):
+        self.generate_obstacle_course(self.columns)
+        [center, radius] = self.initial_position()
+
+        self.borot.position = center
+        self.radius = radius
+

@@ -2,6 +2,7 @@ import pygame
 import sys
 
 from utils.picasso import Picasso
+from utils.sensors import Sensors
 
 # Initialize the game
 dimensions = (25, 31)
@@ -11,7 +12,8 @@ running = True
 dt = 0
 
 player_pos = pygame.Vector2(gfx.screen.get_width() / 2, gfx.screen.get_height() / 2)
-
+screen = gfx.screen
+snsr = Sensors(player_pos, screen)
 # self.create_maze(dimensions[1], dimensions[0])
 gfx.create_obstacle_course(dimensions[1])
 [center, radius] = gfx.initial_position()
@@ -28,7 +30,6 @@ def move(temp_keys: pygame.key.ScancodeWrapper, local_pos: pygame.Vector2, delta
         local_pos.x += 300 * delta
     return local_pos
 
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -44,6 +45,7 @@ while True:
     gfx.draw_obstacle_course()
     gfx.draw_robot(center, radius)
     gfx.screen.blit(gfx.map_surface, (0, 0))
+    snsr.cast_rays()
     pygame.display.flip()
 
     # limits FPS to 60

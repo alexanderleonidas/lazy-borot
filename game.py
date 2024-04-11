@@ -40,7 +40,7 @@ class Game:
                    keys[pygame.K_t], keys[pygame.K_g], keys[pygame.K_x]]
 
             self.map.borot.moving_keys(key, dt, self.screen, self.map.borot.radius)
-            self.sensors.draw_sensors()
+            self.sensors.cast_rays()
 
             self.canvas.draw_map()
             self.canvas.draw_robot(self.map.borot.position, self.map.borot.radius, self.map.borot.rotation)

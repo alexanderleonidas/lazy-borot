@@ -2,11 +2,15 @@ from typing import Tuple
 import numpy as np
 import pygame, math
 
+import numpy as np
+
+BOROT_SIZE = 10
 
 class Borot:
     def __init__(self, name, world) -> None:
         self.name = name
         self.position: Tuple[int, int] = (0, 0)
+        self.radius = BOROT_SIZE
         self.world = world
         self.rotation = 0
         self.icc: Tuple[float, float] = (0, 0)  # Instantaneous Center of Curvature
@@ -15,18 +19,9 @@ class Borot:
         self.theta = 0
         self.speed = 5
 
-    def move(self, direction) -> Tuple[int, int]:
-        new_pos = self.position + direction
-        # Check if the new position is within the maze and not a wall
-        if 0 <= new_pos.x < self.world.width and 0 <= new_pos.y < self.world.height:
-            if self.world.obstacles[int(new_pos.y)][int(new_pos.x)] == 0:
-                self.position = new_pos
-
-        return self.get_position()
-
     def get_position(self) -> Tuple[int, int]:
         return self.position
-    
+
     def moving_keys(self, keys, dt, screen, player):
         self.screen = screen
         self.x = self.position[0]  # starting x
@@ -34,6 +29,7 @@ class Borot:
         self.radius = player
 
         # keys = [w, s, o, l, x, t, g]
+        # TODO: Check if this is correct and as expected
         if keys[0] == 1 or keys[5] == 1:
             self.Vr += self.speed
             print(self.Vr)
@@ -63,12 +59,9 @@ class Borot:
                 ICC = [self.x - R * np.sin(-self.theta), self.y + R * np.cos(self.theta)]
                 result = np.transpose(np.matmul(
                     np.array([[np.cos(w * dt), -np.sin(w * dt), 0],
-                            [np.sin(w * dt), np.cos(w * dt), 0],
-                            [0, 0, 1]]),
+                              [np.sin(w * dt), np.cos(w * dt), 0],
+                              [0, 0, 1]]),
                     np.transpose(np.array([self.x - ICC[0], self.y - ICC[1], self.theta]))) + np.array(
                     [ICC[0], ICC[1], w * dt])).transpose()
-                next_x, next_y, new_theta = result[0], result[1], result[2] #info for updateding the sensors
+                next_x, next_y, new_theta = result[0], result[1], result[2]  # info for updateding the sensors
                 self.position = (next_x, next_y)
-
-        
-

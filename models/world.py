@@ -1,50 +1,61 @@
-from models.borot import Borot
 import random
+from typing import Tuple
 
+from models.borot import Borot
 
-# Creates the map
+WALL_SIZE = 20
+
 class World:
-    def __init__(self, dimensions: tuple[int, int]) -> None:
-        # Initialize screen
-        self.cell_size: int = 30
-        self.rows: int = dimensions[0]
-        self.columns: int = dimensions[1]
-        self.height: int = self.rows * self.cell_size
-        self.width: int = self.columns * self.cell_size
-        self.radius = 0
+    def __init__(self, width, height):
+        self.width = width
+        self.height = height
+        self.walls = []
+        self.borot = Borot("Borot", self)
 
-        self.borot: Borot = Borot("Borot", self)
+    def add_wall(self, top_left: Tuple[int, int], bottom_right: Tuple[int, int]):
+        self.walls.append(Wall(top_left, bottom_right))
 
-        self.obstacles: list = []
+    def build_boundary_walls(self):
+        self.add_wall((0, 0), (self.width, WALL_SIZE))
+        self.add_wall((0, self.height - WALL_SIZE), (self.width, self.height))
+        self.add_wall((0, 0), (WALL_SIZE, self.height))
+        self.add_wall((self.width - WALL_SIZE, 0), (self.width, self.height))
 
-    def generate_obstacle_course(self) -> None:
-        for _ in range(self.columns):
-            size = (random.randint(1, 5) * self.cell_size, random.randint(1, 3) * self.cell_size)
-            position = (
-                random.randint(0, (self.width - size[0]) // self.cell_size) * self.cell_size,
-                random.randint(0, (self.height - size[1]) // self.cell_size) * self.cell_size
-            )
+    def build_map(self, obstacles=20, obstacle_width=WALL_SIZE, obstacle_height=WALL_SIZE):
+        self.build_boundary_walls()
 
-            self.obstacles.append((position[0], position[1], size[0], size[1]))
+        for _ in range(obstacles):
+            lim = 0
+            while True:
+                x = random.randint(1, (self.width - obstacle_width) // obstacle_width) * obstacle_width
+                y = random.randint(1, (self.height - obstacle_height) // obstacle_height) * obstacle_height
 
-    def initial_position(self):
-        open_spaces = []
+                if obstacle_height < y < self.height - 2 * obstacle_height:
+                    self.add_wall((x, y), (obstacle_width, obstacle_height))
+                    break
 
-        for y in range(self.rows):
-            for x in range(self.columns):
-                if (x, y) not in self.obstacles:
-                    open_spaces.append((x, y))
+                # Break if the loop runs for too long
+                if lim > 100:
+                    break
 
-        if not open_spaces:
-            return 0, 0
+                lim += 1
+                
+        # # TODO: Generate Random Walls
+        # self.add_wall((0, 100), (700, WALL_SIZE))
+        # self.add_wall((900, 100), (self.width, WALL_SIZE))
+        # self.add_wall((100, 200), (self.width, WALL_SIZE))
+        # self.add_wall((100, 200), (WALL_SIZE, 300))
+        # self.add_wall((100, 400), (800, WALL_SIZE))
+        # self.add_wall((500, 400), (WALL_SIZE, 250))
+        # self.add_wall((800, 500), (WALL_SIZE, 250))
+        # self.add_wall((1100, 300), (WALL_SIZE, 325))
 
-        chosen = random.choice(open_spaces)
-        self.borot.position = chosen
-        self.radius = self.cell_size // 2.5
-        self.l = self.radius * 2
+    def spawn(self):
+        self.borot.position = (50, 50)
 
-    def build(self):
-        self.generate_maze()
-        # self.generate_obstacle_course()
-        self.initial_position()
 
+
+class Wall:
+    def __init__(self, top_left: Tuple[int, int], bottom_right: Tuple[int, int]):
+        self.top_left = top_left
+        self.bottom_right = bottom_right

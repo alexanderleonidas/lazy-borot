@@ -5,41 +5,29 @@ from pygame import Rect, Vector2
 class Picasso:
     def __init__(self, world):
         self.world = world
-        pygame.init()
-        self.screen = pygame.display.set_mode((self.world.width, self.world.height))
-        pygame.display.set_caption("Obstacle Avoidance")
 
         # Colours
-        self.BLACK = (0, 0, 0)
-        self.WHITE = (255, 255, 255)
-        self.RED = (255, 0, 0)
-        self.GREEN = (0, 255, 0)
+        self.WALL_COLOR = (0, 0, 0)
+        self.FLOOR_COLOR = (255, 255, 255)
+        self.AGENT_COLOR = (255, 0, 0)
+        self.AGENT_DIR_COLOR = (0, 255, 0)
 
         self.map_surface = pygame.Surface((self.world.width, self.world.height))
 
-    def draw_obstacle_course(self):
-        # Clear the surface by filling it with white
-        self.map_surface.fill(self.WHITE)
+    def draw_wall(self, wall):
+        pygame.draw.rect(self.map_surface, self.WALL_COLOR, Rect(wall.top_left, wall.bottom_right))
 
-        # Draw each obstacle onto the surface
-        for obstacle in self.world.obstacles:
-            pygame.draw.rect(self.map_surface, self.BLACK, Rect(Vector2(obstacle[0], obstacle[1]), Vector2(obstacle[2], obstacle[3])))
-
-    def draw_maze(self):
-        self.map_surface.fill(self.BLACK)
-        for y in range(len(self.world.obstacles)):
-            for x in range(len(self.world.obstacles[0])):
-                color = self.WHITE if self.world.obstacles[y][x] == 0 else self.BLACK
-                pygame.draw.rect(self.map_surface, color,
-                                 [x * self.world.cell_size, y * self.world.cell_size, self.world.cell_size,
-                                  self.world.cell_size])
+    def draw_map(self):
+        self.map_surface.fill(self.FLOOR_COLOR)
+        for wall in self.world.walls:
+            self.draw_wall(wall)
 
     def draw_robot(self, center, radius, direction=0):
         # Draw the Robot as a circle with a rectangle to indicate direction
         # Draw the red circle
-        pygame.draw.circle(self.map_surface, self.RED, center, radius)
+        pygame.draw.circle(self.map_surface, self.AGENT_COLOR, center, radius)
 
         # Draw the rectangle
         # Draw a line to indicate the front of the robot
         front_pos = center + pygame.Vector2(radius, 0).rotate(direction)
-        pygame.draw.line(self.map_surface, self.BLACK, center, front_pos)
+        pygame.draw.line(self.map_surface, self.WALL_COLOR, center, front_pos)

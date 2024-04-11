@@ -2,6 +2,7 @@ from models.borot import Borot
 import random
 
 
+# Creates the map
 class World:
     def __init__(self, dimensions: tuple[int, int]) -> None:
         # Initialize screen
@@ -10,14 +11,14 @@ class World:
         self.columns: int = dimensions[1]
         self.height: int = self.rows * self.cell_size
         self.width: int = self.columns * self.cell_size
-        self.radius = 20
+        self.radius = 0
 
         self.borot: Borot = Borot("Borot", self)
 
         self.obstacles: list = []
 
-    def generate_obstacle_course(self, num_obstacles: int) -> None:
-        for _ in range(num_obstacles):
+    def generate_obstacle_course(self) -> None:
+        for _ in range(self.columns):
             size = (random.randint(1, 5) * self.cell_size, random.randint(1, 3) * self.cell_size)
             position = (
                 random.randint(0, (self.width - size[0]) // self.cell_size) * self.cell_size,
@@ -62,19 +63,10 @@ class World:
 
         chosen = random.choice(open_spaces)
         self.borot.position = chosen
-        radius = self.cell_size // 2.5
-
-        return self.borot.position, radius
-
-    def is_open_space(self, position):
-        if 0 <= position.x < self.columns and 0 <= position.y < self.rows:
-            return self.obstacles[int(position.y)][int(position.x)] == 0
-        return False
+        self.radius = self.cell_size // 2.5
 
     def build(self):
-        self.generate_obstacle_course(self.columns)
-        [center, radius] = self.initial_position()
-
-        self.borot.position = center
-        self.radius = radius
+        # self.generate_maze()
+        self.generate_obstacle_course()
+        self.initial_position()
 

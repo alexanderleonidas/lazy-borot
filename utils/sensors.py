@@ -1,7 +1,6 @@
 import math
 import pygame
 
-
 class Sensors:
     def __init__(self, player_pos, screen):
         self.player_pos = player_pos
@@ -12,7 +11,7 @@ class Sensors:
         self.sensor_length = 100  # Maximum sensor ray length
 
         
-    def cast_rays(self):
+    def test_cast_rays(self):
         temp_angle = 0
         for i in range(12):
             end_x = self.player_pos.x + math.cos(temp_angle) * self.sensor_length
@@ -21,41 +20,43 @@ class Sensors:
             temp_angle += self.STEP_ANGLE
     
 
-    def detect_collisions(self):
+    def cast_rays(self):
+        self.all_sensors = []
         temp_angle = 0
         for i in range(12):
-            sensor_end_x = self.player_pos.x + math.cos(temp_angle) * self.sensor_length
-            sensor_end_y = self.player_pos.y + math.sin(temp_angle) * self.sensor_length
+            self.all_sensors.append({
+                "x": self.player_pos.x,
+                "y": self.player_pos.y,
+                "angle": temp_angle,
+                "index": i
+            })
+        temp_angle += self.STEP_ANGLE
 
-            # Initialize ray
-            ray = ((self.player_pos.x, self.player_pos.y), (sensor_end_x, sensor_end_y))
-            detected = []
+    def detect_collisions(self):
+        for sensor in self.all_sensors:
+            sensor['distance'] = 200  # Default distance if no collision
+            sensor['collision_point'] = None
+            for depth in range(200):
+                target_x = sensor['x'] - math.sin(sensor['angle']) * depth
+                target_y = sensor['y'] + math.cos(sensor['angle']) * depth
+                ray = ((sensor['x'], sensor['y']), (target_x, target_y))
+                for obstacle in self.obstacles:
+                    clipped_line = obstacle.clipline(ray)
+                    if clipped_line:
+                        distance = int(math.sqrt((clipped_line[0][1] - sensor['y'])**2 + (clipped_line[0][0] - sensor['x'])**2)) - 32
+                        if distance < sensor['distance']:
+                            sensor['distance'] = distance
+                            sensor['collision_point'] = clipped_line[0]
 
-            # Check each obstacle for collision with the ray
-            for obstacle in self.obstacles:
-                clipped_line = obstacle.clipline(ray)
-                if clipped_line:
-                    detected.append(clipped_line)
-
-            # Find the closest collision, if any
-            if detected:
-                closest_collision = min(detected, key=lambda cl: self._distance_from_player(cl[0]))
-                self._handle_collision(closest_collision, temp_angle)
-
-            temp_angle += self.STEP_ANGLE
-
-
-    def _handle_collision(self, collision, angle):
-        collision_point = collision[0]
-        distance = self._distance_from_player(collision_point)
-        # Draw a line to the collision point
-        pygame.draw.line(self.screen, (255, 130, 100), (self.player_pos.x, self.player_pos.y),
-                         collision_point, 3)
-        # Display the distance
-        sensor_text = self.SENSORS_FONT.render(f"{distance}", 1, (255, 255, 255))
-        self.screen.blit(sensor_text, collision_point)
-
-
-    def _distance_from_player(self, point):
-
-        return int(math.sqrt((point[1] - self.player_pos.y) ** 2 + (point[0] - self.player_pos.x) ** 2))
+    def draw_sensors(self):
+        for sensor in self.all_sensors:
+            sensor_x, sensor_y = sensor['x'], sensor['y']
+            if sensor['collision_point']:
+                pygame.draw.line(self.screen, (255, 130, 100), (sensor_x, sensor_y), sensor['collision_point'], 3)
+                sensor_text = self.SENSORS_FONT.render(str(sensor['distance']), True, (255, 255, 255))
+                self.screen.blit(sensor_text, sensor['collision_point'])
+            else:
+                # If no collision, optionally draw the sensor line to its maximum extent
+                end_x = sensor_x - math.sin(sensor['angle']) * sensor['distance']
+                end_y = sensor_y + math.cos(sensor['angle']) * sensor['distance']
+                pygame.draw.line(self.screen, (255, 255, 255), (sensor_x, sensor_y), (end_x, end_y), 1)

@@ -28,6 +28,7 @@ class Borot:
         self.radius = player
 
         # keys = [w, s, o, l, x, t, g]
+        # TODO: Check if this is correct and as expected
         if keys[0] == 1 or keys[5] == 1:
             self.Vr += self.speed
             print(self.Vr)

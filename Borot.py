@@ -22,21 +22,27 @@ class Borot:
 
     def draw(self, surface):
         self.draw_sensors(surface)
-        pygame.draw.circle(surface, RED, (int(self.position.x), int(self.position.y)), self.radius)
+        pygame.draw.circle(surface, RED, self.position, self.radius)
         end_pos = self.position + self.direction * self.radius
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
 
     def draw_sensors(self, surface):
         for sensor_endpoint in self.sensor_endpoints:
-            pygame.draw.line(surface, GREEN, self.position, sensor_endpoint, 1)
-            pygame.draw.circle(surface, BLUE, sensor_endpoint, 1)
+            sensor_end = self.position + sensor_endpoint
+            pygame.draw.line(surface, GREEN, self.position, sensor_end, 2)
+            pygame.draw.circle(surface, BLUE, sensor_end, 2)
+
 
     def handle_keys(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
             self.position += self.direction * 2  # Move 5 pixels forward
+            v_r = 2
+        if keys[pygame.K_DOWN]:
+            v_r = 2
         if keys[pygame.K_LEFT]:
             self.direction.rotate_ip(-2)
+            v_l = 2
         if keys[pygame.K_RIGHT]:
             self.direction.rotate_ip(2)
             
@@ -47,16 +53,20 @@ class Borot:
         self.sensor_endpoints.clear()
         for sensor_direction in self.sensor_directions:
             sensor_end = self.position + sensor_direction * SENSOR_LENGTH
+            closest_point = sensor_end
             min_distance = SENSOR_LENGTH
-            closest_intersection = sensor_end
             for obstacle in obstacles:
-                if intersect := obstacle.clipline(self.position, sensor_end):
-                    intersection_point = pygame.math.Vector2(*intersect[1])
-                    distance = (self.position - intersection_point).length()
-                    if distance < min_distance:
-                        min_distance = distance
-                        closest_intersection = intersection_point
-            self.sensor_endpoints.append(closest_intersection)
+                # Check for intersection with each obstacle
+                if intersects := obstacle.clipline(self.position, sensor_end):
+                    for point in intersects:
+                        intersection_point = pygame.math.Vector2(*point)
+                        distance = (self.position - intersection_point).length()
+                        if distance < min_distance:
+                            min_distance = distance
+                            closest_point = intersection_point
+            # Store the vector from circle's center to the closest intersection or sensor end
+            self.sensor_endpoints.append(closest_point - self.position)
+
     
     def find_initial_borot_position(self, obstacles, screen_width, screen_height):
         max_attempts = 100

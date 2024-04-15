@@ -11,20 +11,20 @@ class Physics:
         self.position = position # Borot position
         self.dt = dt #  Time step
 
-    def r(self, l, v_l, v_r):
-        return (l / 2) * ((v_l + v_r) / (v_r - v_l))
+    def calculate_r(self, radius, v_l, v_r):
+        return (radius) * ((v_l + v_r) / (v_r - v_l))
 
-    def omega(self, l, v_l, v_r):
-        return (v_r - v_l) / l
+    def calculate_omega(self, radius, v_l, v_r):
+        return (v_r - v_l) / (radius * 2)
 
-    def calculate_icc(self, r, w):
+    def calculate_icc(self, r):
         return self.position.x - r * math.sin(self.theta),self.position.y + r * math.cos(self.theta)
 
     def motion(self, w, icc):
         a = np.array([[np.cos(w * self.dt), -np.sin(w * self.dt), 0],
                         [np.sin(w * self.dt), np.cos(w * self.dt), 0],
                             [0, 0, 1]])
-        b = np.array([self.x - icc[0], self.y - icc[1], self.theta])
+        b = np.array([self.position.x - icc[0], self.position.y - icc[1], self.theta])
         c = np.array([icc[0], icc[1], w * self.dt])
         return np.matmul(a,b) + c.transpose()
 
@@ -40,9 +40,9 @@ class Physics:
             # Rotation about left or right wheel
             pass
         else:
-            R = self.r(self.radius,self.v_l,self.v_r)
-            w = self.omega(self.radius, self.v_l, self.v_r)
-            icc = self.calculate_icc(R,w)
+            r = self.calculate_r(self.radius,self.v_l,self.v_r)
+            w = self.calculate_omega(self.radius, self.v_l, self.v_r)
+            icc = self.calculate_icc(r)
             d_pos = self.motion(w,icc)
             self.position.x += d_pos[0]
             self.position.y += d_pos[1]

@@ -1,6 +1,8 @@
+from copy import copy, deepcopy
+
 import pygame
 
-from Borot import Borot
+from Borot import Borot, SENSOR_LENGTH
 from Picasso import Picasso
 from Physics import Physics
 
@@ -35,7 +37,17 @@ def main():
                 running = False
 
         screen.fill(BACKGROUND_COLOR)
+        old_borot = deepcopy(borot)
         borot.handle_keys()  # Handle key inputs
+
+        min_distance = SENSOR_LENGTH
+        # Update the sensor endpoints
+        for obstacle in picasso.space:
+            if intersects := obstacle.clip(pygame.Rect(borot.position.x, borot.position.y, borot.radius, borot.radius)):
+                borot.position = old_borot.position
+                break
+
+
         borot.collision_detection(picasso.space)  # Detect collisions
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window
         borot.draw(screen, font)

@@ -48,13 +48,10 @@ def main():
 
     running = True
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
         screen.fill(BACKGROUND_COLOR)
         old_borot = deepcopy(borot)
-        borot.handle_keys()  # Handle key inputs
+        if borot.handle_keys() == False:
+            running = False
         physics.apply(dt, borot.v_l, borot.v_r)
         borot.update_position(physics.position, physics.theta)
         # Update the sensor endpoints

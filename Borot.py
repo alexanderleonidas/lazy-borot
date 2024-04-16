@@ -49,31 +49,36 @@ class Borot:
 
 
     def handle_keys(self):
-        keys = pygame.key.get_pressed()
-        if keys[pygame.K_UP]:
-            self.v_r += 2
-        if keys[pygame.K_DOWN]:
-            self.v_r -= 2
-        if keys[pygame.K_w]:
-            self.v_l += 2
-        if keys[pygame.K_s]:
-            self.v_l -= 2
-        if keys[pygame.K_SPACE]:
-            self.v_l = 0
-            self.v_r = 0
-        if keys[pygame.K_1]:
-            self.v_l = 5
-            self.v_r = 5
-        if keys[pygame.K_2]:
-            self.v_l = -5
-            self.v_r = -5
-        if keys[pygame.K_3]:
-            self.v_l = 0
-            self.v_r = 1
-        if keys[pygame.K_4]:
-            self.v_l = 1
-            self.v_r = 0
-            
+        for event in pygame.event.get():
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_UP:
+                    self.v_r += 2
+                if event.key == pygame.K_DOWN:
+                    self.v_r -= 2
+                if event.key == pygame.K_w:
+                    self.v_l += 2
+                if event.key == pygame.K_s:
+                    self.v_l -= 2
+                if event.key == pygame.K_SPACE:
+                    self.v_l = 0
+                    self.v_r = 0
+                if event.key == pygame.K_1:
+                    self.v_l = 5
+                    self.v_r = 5
+                if event.key == pygame.K_2:
+                    self.v_l = -5
+                    self.v_r = -5
+                if event.key == pygame.K_3:
+                    self.v_l = 0
+                    self.v_r = 1
+                if event.key == pygame.K_4:
+                    self.v_l = 1
+                    self.v_r = 0
+
+            # Quit Game
+            if event.type == pygame.QUIT:
+                return False
+
         # Update sensor positions to move with the robots front direction
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
         # self.normalize_wheel_velocities()

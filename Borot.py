@@ -84,9 +84,9 @@ class Borot:
 
     def draw_sensor_values(self, surface,font):
         for i, sensor_endpoint in enumerate(self.sensor_endpoints):
-            sensor_distance = sensor_endpoint.length()  # Get the length of the vector
+            sensor_distance = sensor_endpoint.length() - self.radius  # Get the length of the vector
             textsurface = font.render(f'{sensor_distance:.1f}', False, RED)
-            offset_distance = sensor_distance + 5
+            offset_distance = sensor_distance + 5 # Move the text a bit away from the sensor
 
             # Calculate and adjust the text position
             text_direction = sensor_endpoint.normalize() if sensor_distance != 0 else pygame.math.Vector2()

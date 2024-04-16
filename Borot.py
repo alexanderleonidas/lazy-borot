@@ -17,48 +17,31 @@ class Borot:
     def __init__(self):
         self.position = pygame.math.Vector2
         self.radius = 10
-        self.theta = 0  # in degrees
-        self.direction = pygame.math.Vector2(math.cos(math.radians(self.theta)), math.sin(math.radians(self.theta)))
-        self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
+        self.theta = 0  # in radians
+        self.direction = pygame.math.Vector2(math.cos(self.theta), math.sin(self.theta))
+        self.sensor_directions = [self.direction.rotate(i * 2 * math.pi / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
         self.sensor_endpoints = []
-        self.v_l = 1
-        self.v_r = 1
+        self.v_l = 0
+        self.v_r = 0
         self.max_speed = 20
         self.min_speed = -20
 
-    def update_position(self, new_pos, new_direction, new_theta):
+    def update(self, new_pos, new_direction, new_theta):
         self.position = new_pos
         self.direction = new_direction
-        if self.theta != new_theta:
-            self.theta = new_theta
-            self.direction.rotate_ip(self.theta)
+        self.theta = new_theta
         
-    def draw(self, surface,font):
-        self.draw_sensors(surface)
-        pygame.draw.circle(surface, RED, self.position, self.radius)
-        end_pos = self.position + self.direction * self.radius
-        pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
-        self.draw_motor_speed(surface, font)
-        self.draw_sensor_values(surface, font)  # Draw the sensor values
-
-    def draw_sensors(self, surface):
-        for sensor_endpoint in self.sensor_endpoints:
-            sensor_end = self.position + sensor_endpoint
-            pygame.draw.line(surface, GREEN, self.position, sensor_end, 2)
-            pygame.draw.circle(surface, BLUE, sensor_end, 2)
-
-
     def handle_keys(self):
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_UP:
-                    self.v_r += 2
+                    self.v_r = min(self.v_r + 2, self.max_speed)
                 if event.key == pygame.K_DOWN:
-                    self.v_r -= 2
+                    self.v_r = max(self.v_r - 2, self.min_speed)
                 if event.key == pygame.K_w:
-                    self.v_l += 2
+                    self.v_l = min(self.v_l + 2, self.max_speed)
                 if event.key == pygame.K_s:
-                    self.v_l -= 2
+                    self.v_l = max(self.v_l - 2, self.min_speed)
                 if event.key == pygame.K_SPACE:
                     self.v_l = 0
                     self.v_r = 0
@@ -81,24 +64,6 @@ class Borot:
 
         # Update sensor positions to move with the robots front direction
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
-        # self.normalize_wheel_velocities()
-    
-    def normalize_wheel_velocities(self):
-        # Ensure min_speed is negative and less than max_speed
-        if self.min_speed > 0 or self.min_speed >= self.max_speed:
-            raise ValueError("min_speed must be negative and less than max_speed")
-
-        current_max_speed = max(abs(self.v_l), abs(self.v_r))
-        if current_max_speed > self.max_speed:
-            # Calculate scale factor for maximum speed
-            scale_factor = self.max_speed / current_max_speed
-            self.v_l *= scale_factor
-            self.v_r *= scale_factor
-        elif current_max_speed < abs(self.min_speed) and current_max_speed != 0:
-            # Calculate scale factor for minimum speed if both speeds are below the absolute value of min_speed
-            scale_factor = abs(self.min_speed) / current_max_speed
-            self.v_l *= scale_factor
-            self.v_r *= scale_factor
 
     def collision_detection(self, obstacles):
         self.sensor_endpoints.clear()
@@ -128,6 +93,22 @@ class Borot:
             if pos.collidelist(obstacles) == -1:  # Check if the circle does not collide with any obstacles
                 self.position = pygame.math.Vector2(x, y)  # Return the position as a Vector2 for consistency
                 break
+
+    # ----------------------------------------------- Drawing Methods -----------------------------------------------#
+    
+    def draw(self, surface,font):
+        self.draw_sensors(surface)
+        pygame.draw.circle(surface, RED, self.position, self.radius)
+        end_pos = self.position + self.direction * self.radius
+        pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
+        self.draw_motor_speed(surface, font)
+        self.draw_sensor_values(surface, font)  # Draw the sensor values
+
+    def draw_sensors(self, surface):
+        for sensor_endpoint in self.sensor_endpoints:
+            sensor_end = self.position + sensor_endpoint
+            pygame.draw.line(surface, GREEN, self.position, sensor_end, 2)
+            pygame.draw.circle(surface, BLUE, sensor_end, 2)
 
     def draw_sensor_values(self, surface,font):
         for i, sensor_endpoint in enumerate(self.sensor_endpoints):

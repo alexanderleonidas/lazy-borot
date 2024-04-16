@@ -23,7 +23,7 @@ surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 font = pygame.font.SysFont('Comic Sans MS', 10)
 
 
-def circle_rect_collision(circle_center, circle_radius, rect):
+def handle_collision(circle_center, circle_radius, rect):
     # Find the closest point on the rectangle to the circle's center
     closest_x = max(rect.left, min(circle_center.x, rect.right))
     closest_y = max(rect.top, min(circle_center.y, rect.bottom))
@@ -53,11 +53,11 @@ def main():
         if borot.handle_keys() == False:
             running = False
         physics.apply(dt, borot.v_l, borot.v_r)
-        borot.update_position(physics.position, physics.direction, physics.theta)
+        borot.update(physics.position, physics.direction, physics.theta)
         # Update the sensor endpoints
         for obstacle in picasso.space:
             rect = pygame.Rect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
-            if circle_rect_collision(pygame.math.Vector2(borot.position.x, borot.position.y), borot.radius, rect):
+            if handle_collision(pygame.math.Vector2(borot.position.x, borot.position.y), borot.radius, rect):
                 borot.position = old_borot.position
                 break
 

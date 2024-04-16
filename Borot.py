@@ -24,11 +24,11 @@ class Borot:
         
     def draw(self, surface,font):
         self.draw_sensors(surface)
-        self.draw_sensor_values(surface, font)  # Draw the sensor values
         pygame.draw.circle(surface, RED, self.position, self.radius)
         end_pos = self.position + self.direction * self.radius
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
-        self.draw_motor_speed(surface, font, v_l=0, v_r=0) 
+        self.draw_motor_speed(surface, font, v_l=0, v_r=0)
+        self.draw_sensor_values(surface, font)  # Draw the sensor values
 
     def draw_sensors(self, surface):
         for sensor_endpoint in self.sensor_endpoints:
@@ -85,7 +85,7 @@ class Borot:
     def draw_sensor_values(self, surface,font):
         for i, sensor_endpoint in enumerate(self.sensor_endpoints):
             sensor_distance = sensor_endpoint.length()  # Get the length of the vector
-            textsurface = font.render(f'{sensor_distance:.1f}', False, (0, 0, 0))  
+            textsurface = font.render(f'{sensor_distance:.1f}', False, RED)
             offset_distance = sensor_distance + 5
 
             # Calculate and adjust the text position

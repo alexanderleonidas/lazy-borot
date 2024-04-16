@@ -22,6 +22,20 @@ pygame.display.set_caption("Randomized Obstacle Course")
 surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 font = pygame.font.SysFont('Comic Sans MS', 10)
 
+
+def circle_rect_collision(circle_center, circle_radius, rect):
+    # Find the closest point on the rectangle to the circle's center
+    closest_x = max(rect.left, min(circle_center.x, rect.right))
+    closest_y = max(rect.top, min(circle_center.y, rect.bottom))
+
+    # Calculate the distance from the closest point to the circle's center
+    distance_x = circle_center.x - closest_x
+    distance_y = circle_center.y - closest_y
+    distance = (distance_x ** 2 + distance_y ** 2) ** 0.5
+
+    # Collision occurs if the distance is less than the circle's radius
+    return distance < circle_radius
+
 def main():
     picasso = Picasso(surface)
     picasso.draw()
@@ -40,13 +54,12 @@ def main():
         old_borot = deepcopy(borot)
         borot.handle_keys()  # Handle key inputs
 
-        min_distance = SENSOR_LENGTH
         # Update the sensor endpoints
         for obstacle in picasso.space:
-            if intersects := obstacle.clip(pygame.Rect(borot.position.x, borot.position.y, borot.radius, borot.radius)):
+            rect = pygame.Rect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
+            if circle_rect_collision(pygame.math.Vector2(borot.position.x, borot.position.y), borot.radius, rect):
                 borot.position = old_borot.position
                 break
-
 
         borot.collision_detection(picasso.space)  # Detect collisions
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window

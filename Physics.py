@@ -30,15 +30,15 @@ class Physics:
         if (v_l == 0 and v_r ==0):
             # Stationary
             return
-        if (v_l == v_r):
+        elif (v_l == v_r):
             # lateral movement
             self.position += pygame.Vector2(math.cos(math.radians(self.theta)), math.sin(math.radians(self.theta))) * v_l * dt
-        elif (v_l == - v_r or - v_l == v_r):
-            # Rotation in place
-            pass
-        elif ((v_l == 0 and v_r != 0) or (v_r == 0 and v_l != 0)):
-            # Rotation about left or right wheel
-            pass
+        # elif (v_l == - v_r or - v_l == v_r):
+        #     # Rotation in place
+        #     pass
+        # elif ((v_l == 0 and v_r != 0) or (v_r == 0 and v_l != 0)):
+        #     # Rotation about left or right wheel
+        #     pass
         else:
             r = self.calculate_r(self.radius, v_l, v_r)
             w = self.calculate_omega(self.radius, v_l, v_r)

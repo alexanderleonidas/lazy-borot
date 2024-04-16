@@ -28,8 +28,10 @@ class Borot:
 
     def update_position(self, new_pos, new_theta):
         self.position = new_pos
-        self.theta = new_theta
-        self.direction.rotate_ip(new_theta)
+
+        if self.theta != new_theta:
+            self.theta = new_theta
+            self.direction.rotate_ip(self.theta)
         
     def draw(self, surface,font):
         self.draw_sensors(surface)
@@ -56,10 +58,25 @@ class Borot:
             self.v_l += 2
         if keys[pygame.K_s]:
             self.v_l -= 2
+        if keys[pygame.K_SPACE]:
+            self.v_l = 0
+            self.v_r = 0
+        if keys[pygame.K_1]:
+            self.v_l = 5
+            self.v_r = 5
+        if keys[pygame.K_2]:
+            self.v_l = -5
+            self.v_r = -5
+        if keys[pygame.K_3]:
+            self.v_l = 0
+            self.v_r = 1
+        if keys[pygame.K_4]:
+            self.v_l = 1
+            self.v_r = 0
             
         # Update sensor positions to move with the robots front direction
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
-        self.normalize_wheel_velocities()
+        # self.normalize_wheel_velocities()
     
     def normalize_wheel_velocities(self):
         # Ensure min_speed is negative and less than max_speed

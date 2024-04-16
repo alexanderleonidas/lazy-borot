@@ -43,7 +43,7 @@ def main():
     borot.find_initial_borot_position(picasso.space,SCREEN_WIDTH, SCREEN_HEIGHT)
     clock = pygame.time.Clock()
     dt = 0
-    physics = Physics(borot.theta, borot.radius, borot.position)
+    physics = Physics(borot.theta, borot.radius, borot.position, borot.direction)
     
 
     running = True
@@ -56,7 +56,7 @@ def main():
         old_borot = deepcopy(borot)
         borot.handle_keys()  # Handle key inputs
         physics.apply(dt, borot.v_l, borot.v_r)
-        borot.update_position(physics.position, physics.theta)
+        borot.update_position(physics.position, physics.direction, physics.theta)
         # Update the sensor endpoints
         for obstacle in picasso.space:
             rect = pygame.Rect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)

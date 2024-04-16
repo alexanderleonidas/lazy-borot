@@ -37,8 +37,8 @@ def main():
         screen.fill(BACKGROUND_COLOR)
         borot.handle_keys()  # Handle key inputs
         borot.collision_detection(picasso.space)  # Detect collisions
-        borot.draw(screen, font)
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window
+        borot.draw(screen, font)
         
         
         pygame.display.flip()

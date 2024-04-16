@@ -14,20 +14,29 @@ BLUE = (0, 0, 255)
 
 
 class Borot:
-    def __init__(self, theta):
+    def __init__(self):
         self.position = pygame.math.Vector2
         self.radius = 10
-        self.theta = theta  # in degrees
-        self.direction = pygame.math.Vector2(math.cos(math.radians(theta)), math.sin(math.radians(theta)))
+        self.theta = 0  # in degrees
+        self.direction = pygame.math.Vector2(math.cos(math.radians(self.theta)), math.sin(math.radians(self.theta)))
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
         self.sensor_endpoints = []
+        self.v_l = 1
+        self.v_r = 1
+        self.max_speed = 20
+        self.min_speed = -20
+
+    def update_position(self, new_pos, new_theta):
+        self.position = new_pos
+        self.theta = new_theta
+        self.direction.rotate_ip(new_theta)
         
     def draw(self, surface,font):
         self.draw_sensors(surface)
         pygame.draw.circle(surface, RED, self.position, self.radius)
         end_pos = self.position + self.direction * self.radius
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
-        self.draw_motor_speed(surface, font, v_l=0, v_r=0)
+        self.draw_motor_speed(surface, font)
         self.draw_sensor_values(surface, font)  # Draw the sensor values
 
     def draw_sensors(self, surface):
@@ -40,18 +49,34 @@ class Borot:
     def handle_keys(self):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_UP]:
-            self.position += self.direction * 2  # Move 5 pixels forward
-            v_r = 2
+            self.v_r += 2
         if keys[pygame.K_DOWN]:
-            v_r = 2
-        if keys[pygame.K_LEFT]:
-            self.direction.rotate_ip(-2)
-            v_l = 2
-        if keys[pygame.K_RIGHT]:
-            self.direction.rotate_ip(2)
+            self.v_r -= 2
+        if keys[pygame.K_w]:
+            self.v_l += 2
+        if keys[pygame.K_s]:
+            self.v_l -= 2
             
         # Update sensor positions to move with the robots front direction
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
+        self.normalize_wheel_velocities()
+    
+    def normalize_wheel_velocities(self):
+        # Ensure min_speed is negative and less than max_speed
+        if self.min_speed > 0 or self.min_speed >= self.max_speed:
+            raise ValueError("min_speed must be negative and less than max_speed")
+
+        current_max_speed = max(abs(self.v_l), abs(self.v_r))
+        if current_max_speed > self.max_speed:
+            # Calculate scale factor for maximum speed
+            scale_factor = self.max_speed / current_max_speed
+            self.v_l *= scale_factor
+            self.v_r *= scale_factor
+        elif current_max_speed < abs(self.min_speed) and current_max_speed != 0:
+            # Calculate scale factor for minimum speed if both speeds are below the absolute value of min_speed
+            scale_factor = abs(self.min_speed) / current_max_speed
+            self.v_l *= scale_factor
+            self.v_r *= scale_factor
 
     def collision_detection(self, obstacles):
         self.sensor_endpoints.clear()
@@ -96,10 +121,10 @@ class Borot:
 
             surface.blit(textsurface, text_pos)
 
-    def draw_motor_speed(self, surface,font, v_l, v_r):
+    def draw_motor_speed(self, surface,font):
         # Render the left and right motor speeds as text
-        speed_left_surface = font.render(f'Left Speed: {v_l}', False, (255, 0, 0))
-        speed_right_surface = font.render(f'Right Speed: {v_r}', False, (255, 0, 0))
+        speed_left_surface = font.render(f'Left Speed: {self.v_l}', False, RED)
+        speed_right_surface = font.render(f'Right Speed: {self.v_r}', False, RED)
 
         # Draw the text on the screen at a fixed position
         surface.blit(speed_left_surface, (20, surface.get_height() - 50))  

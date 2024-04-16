@@ -39,9 +39,11 @@ def circle_rect_collision(circle_center, circle_radius, rect):
 def main():
     picasso = Picasso(surface)
     picasso.draw()
-    borot = Borot(0)
+    borot = Borot( )
     borot.find_initial_borot_position(picasso.space,SCREEN_WIDTH, SCREEN_HEIGHT)
     clock = pygame.time.Clock()
+    dt = 0
+    physics = Physics(borot.theta, borot.radius, borot.position)
     
 
     running = True
@@ -53,7 +55,8 @@ def main():
         screen.fill(BACKGROUND_COLOR)
         old_borot = deepcopy(borot)
         borot.handle_keys()  # Handle key inputs
-
+        physics.apply(dt, borot.v_l, borot.v_r)
+        borot.update_position(physics.position, physics.theta)
         # Update the sensor endpoints
         for obstacle in picasso.space:
             rect = pygame.Rect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
@@ -67,7 +70,7 @@ def main():
         
         
         pygame.display.flip()
-        clock.tick(60)  # Limit to 60 FPS
+        dt = clock.tick(60) / 1000  # Limit to 60 FPS
 
     pygame.quit()
 

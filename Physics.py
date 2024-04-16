@@ -3,13 +3,10 @@ import pygame
 import math
 
 class Physics:
-    def __init__(self, dt, v_l, v_r, theta, radius, position:pygame.Vector2) -> None:
-        self.v_l = v_l # Left wheel velocity
-        self.v_r = v_r # Right wheel velocity
+    def __init__(self, theta, radius, position:pygame.Vector2) -> None:
         self.theta = theta # Angle with x axis
         self.radius = radius # Radius of Borot
         self.position = position # Borot position
-        self.dt = dt #  Time step
 
     def calculate_r(self, radius, v_l, v_r):
         return (radius) * ((v_l + v_r) / (v_r - v_l))
@@ -20,32 +17,35 @@ class Physics:
     def calculate_icc(self, r):
         return self.position.x - r * math.sin(self.theta),self.position.y + r * math.cos(self.theta)
 
-    def motion(self, w, icc):
-        a = np.array([[np.cos(w * self.dt), -np.sin(w * self.dt), 0],
-                        [np.sin(w * self.dt), np.cos(w * self.dt), 0],
+    def motion(self,dt,  w, icc):
+        a = np.array([[np.cos(w * dt), -np.sin(w * dt), 0],
+                        [np.sin(w * dt), np.cos(w * dt), 0],
                             [0, 0, 1]])
         b = np.array([self.position.x - icc[0], self.position.y - icc[1], self.theta])
-        c = np.array([icc[0], icc[1], w * self.dt])
+        c = np.array([icc[0], icc[1], w * dt])
         return np.matmul(a,b) + c.transpose()
 
 
-    def apply(self):
-        if(self.v_l == self.v_r):
-            # No rotation
-            pass
-        elif(self.v_l == -self.v_r):
+    def apply(self, dt, v_l, v_r):
+        if (v_l == 0 and v_r ==0):
+            # Stationary
+            return
+        if (v_l == v_r):
+            # lateral movement
+            self.position += pygame.Vector2(math.cos(math.radians(self.theta)), math.sin(math.radians(self.theta))) * v_l * dt
+        elif (v_l == - v_r or - v_l == v_r):
             # Rotation in place
             pass
-        elif(self.v_l == 0 or self.v_r == 0):
+        elif ((v_l == 0 and v_r != 0) or (v_r == 0 and v_l != 0)):
             # Rotation about left or right wheel
             pass
         else:
-            r = self.calculate_r(self.radius,self.v_l,self.v_r)
-            w = self.calculate_omega(self.radius, self.v_l, self.v_r)
+            r = self.calculate_r(self.radius, v_l, v_r)
+            w = self.calculate_omega(self.radius, v_l, v_r)
             icc = self.calculate_icc(r)
-            d_pos = self.motion(w,icc)
-            self.position.x += d_pos[0]
-            self.position.y += d_pos[1]
-            self.theta += d_pos[2]
+            d_pos = self.motion(dt, w,icc)
+            self.position.x = d_pos[0]
+            self.position.y = d_pos[1]
+            self.theta = d_pos[2]
 
         

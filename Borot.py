@@ -11,6 +11,8 @@ GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 
 
+
+
 class Borot:
     def __init__(self, theta):
         self.position = pygame.math.Vector2
@@ -19,12 +21,14 @@ class Borot:
         self.direction = pygame.math.Vector2(math.cos(math.radians(theta)), math.sin(math.radians(theta)))
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
         self.sensor_endpoints = []
-
-    def draw(self, surface):
+        
+    def draw(self, surface,font):
         self.draw_sensors(surface)
+        self.draw_sensor_values(surface, font)  # Draw the sensor values
         pygame.draw.circle(surface, RED, self.position, self.radius)
         end_pos = self.position + self.direction * self.radius
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
+        self.draw_motor_speed(surface, font, v_l=0, v_r=0) 
 
     def draw_sensors(self, surface):
         for sensor_endpoint in self.sensor_endpoints:
@@ -77,3 +81,26 @@ class Borot:
             if pos.collidelist(obstacles) == -1:  # Check if the circle does not collide with any obstacles
                 self.position = pygame.math.Vector2(x, y)  # Return the position as a Vector2 for consistency
                 break
+
+    def draw_sensor_values(self, surface,font):
+        for i, sensor_endpoint in enumerate(self.sensor_endpoints):
+            sensor_distance = sensor_endpoint.length()  # Get the length of the vector
+            textsurface = font.render(f'{sensor_distance:.1f}', False, (0, 0, 0))  
+            offset_distance = sensor_distance + 5
+
+            # Calculate and adjust the text position
+            text_direction = sensor_endpoint.normalize() if sensor_distance != 0 else pygame.math.Vector2()
+            text_pos = self.position + text_direction * offset_distance
+            text_pos.x = max(min(text_pos.x, surface.get_width() - textsurface.get_width()), 0)
+            text_pos.y = max(min(text_pos.y, surface.get_height() - textsurface.get_height()), 0)
+
+            surface.blit(textsurface, text_pos)
+
+    def draw_motor_speed(self, surface,font, v_l, v_r):
+        # Render the left and right motor speeds as text
+        speed_left_surface = font.render(f'Left Speed: {v_l}', False, (255, 0, 0))
+        speed_right_surface = font.render(f'Right Speed: {v_r}', False, (255, 0, 0))
+
+        # Draw the text on the screen at a fixed position
+        surface.blit(speed_left_surface, (20, surface.get_height() - 50))  
+        surface.blit(speed_right_surface, (20, surface.get_height() - 40)) 

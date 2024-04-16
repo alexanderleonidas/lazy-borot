@@ -18,6 +18,7 @@ pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Randomized Obstacle Course")
 surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
+font = pygame.font.SysFont('Comic Sans MS', 10)
 
 def main():
     picasso = Picasso(surface)
@@ -36,7 +37,7 @@ def main():
         screen.fill(BACKGROUND_COLOR)
         borot.handle_keys()  # Handle key inputs
         borot.collision_detection(picasso.space)  # Detect collisions
-        borot.draw(screen)
+        borot.draw(screen, font)
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window
         
         

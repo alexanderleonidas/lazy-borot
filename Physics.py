@@ -3,16 +3,17 @@ import pygame
 import math
 
 class Physics:
-    def __init__(self, theta, radius, position:pygame.Vector2) -> None:
+    def __init__(self, theta, radius, position:pygame.Vector2, direction:pygame.Vector2) -> None:
         self.theta = theta # Angle with x axis
         self.radius = radius # Radius of Borot
         self.position = position # Borot position
+        self.direction = direction
 
-    def calculate_r(self, radius, v_l, v_r):
-        return (radius) * ((v_l + v_r) / (v_r - v_l))
+    def calculate_r(self, v_l, v_r):
+        return (self.radius) * ((v_l + v_r) / (v_r - v_l))
 
-    def calculate_omega(self, radius, v_l, v_r):
-        return (v_r - v_l) / (radius * 2)
+    def calculate_omega(self, v_l, v_r):
+        return (v_r - v_l) / (self.radius * 2)
 
     def calculate_icc(self, r):
         return self.position.x - r * math.sin(self.theta),self.position.y + r * math.cos(self.theta)
@@ -32,7 +33,7 @@ class Physics:
             return
         elif (v_l == v_r):
             # lateral movement
-            self.position += pygame.Vector2(math.cos(math.radians(self.theta)), math.sin(math.radians(self.theta))) * v_l * dt
+            self.position += self.direction * v_l * dt
         # elif (v_l == - v_r or - v_l == v_r):
         #     # Rotation in place
         #     pass
@@ -40,12 +41,13 @@ class Physics:
         #     # Rotation about left or right wheel
         #     pass
         else:
-            r = self.calculate_r(self.radius, v_l, v_r)
-            w = self.calculate_omega(self.radius, v_l, v_r)
+            r = self.calculate_r(v_l, v_r)
+            w = self.calculate_omega(v_l, v_r)
             icc = self.calculate_icc(r)
             d_pos = self.motion(dt, w,icc)
             self.position.x = d_pos[0]
             self.position.y = d_pos[1]
             self.theta = d_pos[2]
+            self.direction.rotate_ip(self.theta)
 
         

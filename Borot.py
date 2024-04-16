@@ -26,9 +26,9 @@ class Borot:
         self.max_speed = 20
         self.min_speed = -20
 
-    def update_position(self, new_pos, new_theta):
+    def update_position(self, new_pos, new_direction, new_theta):
         self.position = new_pos
-
+        self.direction = new_direction
         if self.theta != new_theta:
             self.theta = new_theta
             self.direction.rotate_ip(self.theta)

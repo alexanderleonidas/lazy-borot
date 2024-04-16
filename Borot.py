@@ -145,9 +145,11 @@ class Borot:
 
     def draw_motor_speed(self, surface,font):
         # Render the left and right motor speeds as text
+        rotation_surface = font.render(f'theta: {self.theta}', False, RED)
         speed_left_surface = font.render(f'Left Speed: {self.v_l}', False, RED)
         speed_right_surface = font.render(f'Right Speed: {self.v_r}', False, RED)
 
         # Draw the text on the screen at a fixed position
+        surface.blit(rotation_surface, (20, surface.get_height() - 60))
         surface.blit(speed_left_surface, (20, surface.get_height() - 50))  
         surface.blit(speed_right_surface, (20, surface.get_height() - 40)) 

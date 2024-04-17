@@ -18,7 +18,7 @@ N_OBSTACLES = 45
 pygame.init()
 # Set up the display
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Randomized Obstacle Course")
+pygame.display.set_caption("Left velocity: 'w' for +, 's' for -. Right velocity: 'o' for +, 'k' for -. Space for stop")
 surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 font = pygame.font.SysFont('Comic Sans MS', 10)
 

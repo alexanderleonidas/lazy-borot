@@ -2,16 +2,12 @@ import pygame
 import math
 import random
 
-
 SENSOR_LENGTH = 100  # Length of each sensor
 SENSOR_COUNT = 12  # Number of sensors
 RED = (255, 0, 0) 
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
-
-
-
 
 class Borot:
     def __init__(self):
@@ -34,9 +30,9 @@ class Borot:
     def handle_keys(self):
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
-                if event.key == pygame.K_UP:
+                if event.key == pygame.K_o:
                     self.v_r = min(self.v_r + 2, self.max_speed)
-                if event.key == pygame.K_DOWN:
+                if event.key == pygame.K_k:
                     self.v_r = max(self.v_r - 2, self.min_speed)
                 if event.key == pygame.K_w:
                     self.v_l = min(self.v_l + 2, self.max_speed)
@@ -45,23 +41,9 @@ class Borot:
                 if event.key == pygame.K_SPACE:
                     self.v_l = 0
                     self.v_r = 0
-                if event.key == pygame.K_1:
-                    self.v_l = 5
-                    self.v_r = 5
-                if event.key == pygame.K_2:
-                    self.v_l = -5
-                    self.v_r = -5
-                if event.key == pygame.K_3:
-                    self.v_l = 0
-                    self.v_r = 1
-                if event.key == pygame.K_4:
-                    self.v_l = 1
-                    self.v_r = 0
-
             # Quit Game
             if event.type == pygame.QUIT:
                 return False
-
         # Update sensor positions to move with the robots front direction
         self.sensor_directions = [self.direction.rotate(i * 360 / SENSOR_COUNT) for i in range(SENSOR_COUNT)]
 
@@ -83,7 +65,6 @@ class Borot:
             # Store the vector from circle's center to the closest intersection or sensor end
             self.sensor_endpoints.append(closest_point - self.position)
 
-    
     def find_initial_borot_position(self, obstacles, screen_width, screen_height):
         max_attempts = 100
         for _ in range(max_attempts):
@@ -126,9 +107,9 @@ class Borot:
 
     def draw_motor_speed(self, surface,font):
         # Render the left and right motor speeds as text
-        rotation_surface = font.render(f'theta: {self.theta}', False, RED)
-        speed_left_surface = font.render(f'Left Speed: {self.v_l}', False, RED)
-        speed_right_surface = font.render(f'Right Speed: {self.v_r}', False, RED)
+        rotation_surface = font.render(f'Theta (rads): {self.theta}', False, RED)
+        speed_left_surface = font.render(f'Left speed: {self.v_l}', False, RED)
+        speed_right_surface = font.render(f'Right speed: {self.v_r}', False, RED)
 
         # Draw the text on the screen at a fixed position
         surface.blit(rotation_surface, (20, surface.get_height() - 60))

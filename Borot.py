@@ -91,19 +91,28 @@ class Borot:
             pygame.draw.line(surface, GREEN, self.position, sensor_end, 2)
             pygame.draw.circle(surface, BLUE, sensor_end, 2)
 
-    def draw_sensor_values(self, surface,font):
+    def draw_sensor_values(self, surface, font):
         for i, sensor_endpoint in enumerate(self.sensor_endpoints):
-            sensor_distance = sensor_endpoint.length() - self.radius  # Get the length of the vector
+            sensor_distance = sensor_endpoint.length() - self.radius
             textsurface = font.render(f'{sensor_distance:.1f}', False, RED)
-            offset_distance = sensor_distance + 5 # Move the text a bit away from the sensor
 
-            # Calculate and adjust the text position
-            text_direction = sensor_endpoint.normalize() if sensor_distance != 0 else pygame.math.Vector2()
-            text_pos = self.position + text_direction * offset_distance
+            # Calculate and adjust the text position only if the vector is not zero-length
+            if sensor_endpoint.length_squared() != 0:
+                text_direction = sensor_endpoint.normalize()
+                offset_distance = sensor_distance + 5  # Move the text a bit away from the sensor
+                text_pos = self.position + text_direction * offset_distance
+            else:
+                # If the vector is zero-length, no offset is needed; use the current position
+                text_pos = self.position
+
+            # Ensure the text is within the screen bounds
             text_pos.x = max(min(text_pos.x, surface.get_width() - textsurface.get_width()), 0)
             text_pos.y = max(min(text_pos.y, surface.get_height() - textsurface.get_height()), 0)
 
+            # Draw the text at the calculated position
             surface.blit(textsurface, text_pos)
+
+
 
     def draw_motor_speed(self, surface,font):
         # Render the left and right motor speeds as text
@@ -115,3 +124,4 @@ class Borot:
         surface.blit(rotation_surface, (20, surface.get_height() - 60))
         surface.blit(speed_left_surface, (20, surface.get_height() - 50))  
         surface.blit(speed_right_surface, (20, surface.get_height() - 40)) 
+

@@ -55,3 +55,15 @@ class Physics:
             w = self.calculate_omega(v_l, v_r)
             icc = self.calculate_icc(r)
             self.motion(dt, w, icc, (v_l + v_r)/2 )
+    
+    def handle_collision(self, tangential_velocity):
+        if tangential_velocity.length() > 0:
+            self.direction = tangential_velocity.normalize()
+        else:
+            self.direction = pygame.math.Vector2(0, 0)  # Stop any movement if no tangential component
+        
+        # Update position with the new direction and speed
+        self.position += self.direction * tangential_velocity.length()
+        # Update theta to face along the direction of movement
+        self.theta = self.direction.angle_to(pygame.math.Vector2(1, 0))
+

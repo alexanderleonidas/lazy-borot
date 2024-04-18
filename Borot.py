@@ -113,6 +113,24 @@ class Borot:
             surface.blit(textsurface, text_pos)
 
 
+   # Very Early Code to try some other things
+    def adjust_for_obstacle_avoidance(self, sensor_endpoints):
+        avoid_distance = 50  # Set the distance at which the robot should start avoiding the obstacle
+        for i, sensor_endpoint in enumerate(sensor_endpoints):
+            distance = sensor_endpoint.length()
+            if distance < avoid_distance:
+                # Obstacle on the left side
+                if i < SENSOR_COUNT / 2:
+                    self.v_r += self.max_speed * (avoid_distance - distance) / avoid_distance
+                    self.v_l -= self.min_speed * (avoid_distance - distance) / avoid_distance
+                # Obstacle on the right side
+                else:
+                    self.v_l += self.max_speed * (avoid_distance - distance) / avoid_distance
+                    self.v_r -= self.min_speed * (avoid_distance - distance) / avoid_distance
+
+        # Make sure the speeds are within the limits
+        self.v_l = max(min(self.v_l, self.max_speed), self.min_speed)
+        self.v_r = max(min(self.v_r, self.max_speed), self.min_speed)
 
     def draw_motor_speed(self, surface,font):
         # Render the left and right motor speeds as text

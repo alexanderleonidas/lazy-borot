@@ -55,25 +55,34 @@ def clipline(obstacle, start_pos, end_pos):
     x1, y1 = start_pos
     x2, y2 = end_pos
 
+    # Line intersection algorithm
     def line_intersection(p1, p2, p3, p4):
         x1, y1 = p1
         x2, y2 = p2
         x3, y3 = p3
         x4, y4 = p4
 
+        # Calculate denominators
         den = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4)
         if den == 0:
-            return None  # Lines are parallel
+            return None  # Lines are parallel or coincident
 
-        t = ((x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)) / den
-        u = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3)) / den
+        # Calculate numerators
+        t_num = (x1 - x3) * (y3 - y4) - (y1 - y3) * (x3 - x4)
+        u_num = -((x1 - x2) * (y1 - y3) - (y1 - y2) * (x1 - x3))
 
+        # Calculate the parameters t and u
+        t = t_num / den
+        u = u_num / den
+
+        # Check if the intersection point is on both line segments
         if 0 <= t <= 1 and 0 <= u <= 1:
-            return x1 + t * (x2 - x1), y1 + t * (y2 - y1)
-        else:
-            return None
+            intersection_x = x1 + t * (x2 - x1)
+            intersection_y = y1 + t * (y2 - y1)
+            return intersection_x, intersection_y
+        return None
 
-    intersections = []
+    # Define rectangle edges
     edges = [
         ((left, top), (right, top)),
         ((right, top), (right, bottom)),
@@ -81,16 +90,36 @@ def clipline(obstacle, start_pos, end_pos):
         ((left, bottom), (left, top))
     ]
 
+    # Find intersections
+    intersections = []
     for edge_start, edge_end in edges:
         intersect_point = line_intersection(start_pos, end_pos, edge_start, edge_end)
         if intersect_point:
             intersections.append(intersect_point)
 
-    if len(intersections) == 2:
-        return tuple(intersections)
-    elif len(intersections) > 2:
-        # When there are more than two intersections, it returns the points that are on the segment
-        return tuple(sorted(intersections, key=lambda point: (point[0] - x1)**2 + (point[1] - y1)**2)[:2])
-    return ()
+    # Return the valid intersection points
+    if not intersections:
+        return ()  # No intersections
+    elif len(intersections) == 1:
+        return intersections[0], intersections[0]  # The line touches the rectangle
+    else:
+        # Sort by proximity to start_pos and return the two closest points
+        intersections.sort(key=lambda point: (point[0] - x1) ** 2 + (point[1] - y1) ** 2)
+        return tuple(intersections[:2])
 
 
+# Additional function to check if a point is within a given segment
+def is_point_on_line_segment(point, start_pos, end_pos, epsilon=0.01):
+    px, py = point
+    x1, y1 = start_pos
+    x2, y2 = end_pos
+    crossproduct = (py - y1) * (x2 - x1) - (px - x1) * (y2 - y1)
+    if abs(crossproduct) > epsilon:  # compare with some small epsilon
+        return False
+    dotproduct = (px - x1) * (x2 - x1) + (py - y1) * (y2 - y1)
+    if dotproduct < 0:
+        return False
+    squaredlength = (x2 - x1) ** 2 + (y2 - y1) ** 2
+    if dotproduct > squaredlength:
+        return False
+    return True

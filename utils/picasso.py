@@ -43,10 +43,10 @@ class Picasso:
 
     def robot_data(self, borot: Borot) -> None:
         v_l, v_r = borot.speed()
-        rotation_surface = self.font().render(f'Theta (rads): {int(math.degrees(borot.theta()))}', False,
+        rotation_surface = self.font().render(f'Theta (rads): {int(math.degrees(borot.theta()))}', True,
                                               self.text_color())
-        speed_left_surface = self.font().render(f'Left speed: {v_l}', False, self.text_color())
-        speed_right_surface = self.font().render(f'Right speed: {v_r}', False, self.text_color())
+        speed_left_surface = self.font().render(f'Left speed: {v_l}', True, self.text_color())
+        speed_right_surface = self.font().render(f'Right speed: {v_r}', True, self.text_color())
 
         # Draw the text on the screen at a fixed position
         self.canvas().blit(rotation_surface, (20, self.canvas().get_height() - 60))
@@ -54,9 +54,13 @@ class Picasso:
         self.canvas().blit(speed_right_surface, (20, self.canvas().get_height() - 40))
 
     def sensors(self, borot: Borot) -> None:
-        for degree, sensor in borot.sensors():
+        for degree, sensor, distance in borot.sensors():
             pygame.draw.line(self.canvas(), self.sensor_color(), borot.position(), sensor, 2)
             pygame.draw.circle(self.canvas(), self.sensor_endpoint_color(), sensor, 2)
+            distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
+            self.canvas().blit(distance_value, sensor)
+
+
 
     @staticmethod
     def obstacle_color() -> pygame.Color:

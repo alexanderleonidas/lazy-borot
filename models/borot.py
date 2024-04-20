@@ -3,7 +3,7 @@ import math
 import pygame
 
 from models.action import Action
-from utils.utils import intersects, intersects_closest_point, distance_between_points, clipline, vector_length_squared
+from utils.utils import distance_between_points, clipline
 
 CHANGE_BY = 5
 N_SENSORS = 12
@@ -78,7 +78,10 @@ class Borot:
                             min_distance = distance
                             closest_point = point
 
-            sensors.append((current_degree, closest_point))
+            if min_distance is None:
+                min_distance = SENSOR_LENGTH
+
+            sensors.append((current_degree, closest_point, min_distance))
             current_degree += relative_increase
 
         self.__sensors = sensors

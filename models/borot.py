@@ -1,10 +1,12 @@
 import math
 
+import pygame
+
 from models.action import Action
 from utils.utils import intersects, intersects_closest_point, distance_between_points, clipline, vector_length_squared
 
 CHANGE_BY = 5
-N_SENSORS = 1
+N_SENSORS = 12
 SENSOR_DEGREES = [
     0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330
 ]
@@ -22,7 +24,6 @@ class Borot:
         self.__v_l = 0
         self.__v_r = 0
         self.__sensors = []
-        self.compute_sensor_distances([])
 
     def move(self, action: Action) -> None:
         if action == Action.INCREASE_RIGHT:
@@ -39,6 +40,17 @@ class Borot:
         elif action == Action.NOTHING:
             pass
 
+    def get_sensor_endpoint(self, degree: int) -> tuple:
+        robot_x, robot_y = self.position()
+        x = robot_x + math.cos(math.radians(degree)) * SENSOR_LENGTH
+        y = robot_y + math.sin(math.radians(degree)) * SENSOR_LENGTH
+        return x, y
+
+    def get_sensor_line(self, degree: int) -> tuple:
+        x, y = self.get_sensor_endpoint(degree)
+        robot_x, robot_y = self.position()
+        return robot_x, robot_y, x, y
+
     def compute_sensor_distances(self, obstacles: list) -> None:
         current_degree = 0
         relative_increase = 360 / N_SENSORS
@@ -50,34 +62,23 @@ class Borot:
         robot_y = robot_position[1]
 
         for _ in range(N_SENSORS):
-            x = self.__position[0] + math.cos(math.radians(current_degree)) * SENSOR_LENGTH
-            y = self.__position[1] + math.sin(math.radians(current_degree)) * SENSOR_LENGTH
+            x, y = self.get_sensor_endpoint(current_degree)
 
             closest_point = (x, y)
-            min_distance = SENSOR_LENGTH
-
-            has_intersections = None
+            min_distance = None
 
             for obstacle in obstacles:
-                intersections = clipline((robot_x, robot_y, x, y), obstacle)
-
-                if intersections is None:
-                    print("No intersection")
-                    continue
+                intersections = clipline(obstacle, (robot_x, robot_y), (x, y))
 
                 if intersects := intersections:
                     for point in intersects:
+                        distance = distance_between_points((x, y), point)
 
-                        intersection_point = point
-
-                        distance = vector_length_squared(((self.position()[0] - intersection_point[0]), (self.position()[1] - intersection_point[1])))
-
-                        print(distance)
-                        if distance < min_distance:
+                        if min_distance is None or distance > min_distance:
                             min_distance = distance
-                            closest_point = intersection_point
+                            closest_point = point
 
-            sensors.append(closest_point)
+            sensors.append((current_degree, closest_point))
             current_degree += relative_increase
 
         self.__sensors = sensors

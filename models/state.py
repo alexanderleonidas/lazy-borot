@@ -36,7 +36,7 @@ class State:
         new_state.borot().update_position((x_prime, y_prime))
         new_state.borot().update_theta(theta_prime)
 
-        new_state.borot().compute_sensor_distances(current_state.obstacles())
+        new_state.borot().compute_sensor_distances(new_state.obstacles())
 
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
             return new_state

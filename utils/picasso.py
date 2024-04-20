@@ -54,7 +54,7 @@ class Picasso:
         self.canvas().blit(speed_right_surface, (20, self.canvas().get_height() - 40))
 
     def sensors(self, borot: Borot) -> None:
-        for sensor in borot.sensors():
+        for degree, sensor in borot.sensors():
             pygame.draw.line(self.canvas(), self.sensor_color(), borot.position(), sensor, 2)
             pygame.draw.circle(self.canvas(), self.sensor_endpoint_color(), sensor, 2)
 

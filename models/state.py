@@ -38,10 +38,11 @@ class State:
 
         new_state.borot().compute_sensor_distances(new_state.obstacles())
 
+        # If there are no collisions return the next state
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
             return new_state
 
-        # The Robot Crashed and its velocity is 0 again. Theta remains as is.
+        # The Robot has collided with something and its velocity is 0 again. Theta remains as is.
         collision_state = deepcopy(self)
         collision_state.borot().crash()
         return collision_state

@@ -19,19 +19,19 @@ def rate_of_rotation(v_l, v_r, radius):
     return (v_r - v_l) / l
 
 
-def right_velocity(omega, R, radius):
+def right_velocity(omega, r, radius):
     l = get_diameter(radius)
-    return omega * (R + (l / 2))
+    return omega * (r + (l / 2))
 
 
-def left_velocity(omega, R, radius):
+def left_velocity(omega, r, radius):
     l = get_diameter(radius)
-    return omega * (R - (l / 2))
+    return omega * (r - (l / 2))
 
 
-def icc(R, theta, position):
-    dx = -R * math.sin(theta)
-    dy = R * math.cos(theta)
+def icc(r, theta, position):
+    dx = -r * math.sin(theta)
+    dy = r * math.cos(theta)
 
     return position[0] + dx, position[1] + dy
 

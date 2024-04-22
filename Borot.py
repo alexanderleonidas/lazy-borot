@@ -1,7 +1,6 @@
 import pygame
 import math
 import random
-from Physics import Physics
 
 SENSOR_LENGTH = 100  # Length of each sensor
 SENSOR_COUNT = 12  # Number of sensors
@@ -27,8 +26,6 @@ class Borot:
         self.axis_length = 50
         self.rect = pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, 2 * self.radius, 2 * self.radius)
         self.update_rect() 
-        self.physics = Physics(self.theta, self.radius, self.position, self.direction)
-
         
     def handle_keys(self):
         for event in pygame.event.get():
@@ -60,7 +57,7 @@ class Borot:
                 self.position = pygame.math.Vector2(x, y)  # Return the position as a Vector2 for consistency
                 break
 
-    def collision_detection(self, obstacles):
+    def update_sensors(self, obstacles):
         self.sensor_endpoints.clear()
         for sensor_direction in self.sensor_directions:
             sensor_end = self.position + sensor_direction * SENSOR_LENGTH
@@ -77,6 +74,12 @@ class Borot:
                             closest_point = intersection_point
             # Store the vector from circle's center to the closest intersection or sensor end
             self.sensor_endpoints.append(closest_point - self.position)
+    
+    def update_position(self, new_pos, new_dir, new_theta):
+        self.position = new_pos
+        self.direction = new_dir
+        self.theta = new_theta
+
             
 # ----------------------------------------------- Testing Collision -----------------------------------------------#
     def detect_collision(self, obstacles):
@@ -140,7 +143,7 @@ class Borot:
 
     def update_after_collision(self, collision_info):
         self.handle_collision(collision_info)
-        self.physics.update_position(self.position, self.theta) 
+        # self.physics.update_position(self.position, self.theta) 
 
     # ----------------------------------------------- Drawing Methods -----------------------------------------------#
     
@@ -151,8 +154,8 @@ class Borot:
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
         self.draw_motor_speed(surface, font)
         self.draw_sensor_values(surface, font)  # Draw the sensor values
-        self.draw_icc(surface) #draw ICC
-        self.draw_axes(surface) #draw axes
+        # self.draw_icc(surface) #draw ICC
+        # self.draw_axes(surface) #draw axes
 
     def draw_sensors(self, surface):
         for sensor_endpoint in self.sensor_endpoints:

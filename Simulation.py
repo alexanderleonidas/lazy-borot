@@ -43,10 +43,9 @@ def main():
             running = False
         physics.apply(dt, borot.v_l, borot.v_r)
 
-
         # Update Borot's state based on physics calculations
-        borot.physics.update_position(borot.position, borot.theta)
-        borot.collision_detection(picasso.space)
+        borot.update_position(physics.position, physics.direction, physics.theta)
+        borot.update_sensors(picasso.space)
 
         # Detect and handle collisions
         collision_info = borot.detect_collision(picasso.space)
@@ -55,7 +54,6 @@ def main():
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window
         borot.draw(screen, font)
         
-        borot.physics.update_position(borot.position, borot.theta)
         pygame.display.flip()
         dt = clock.tick(50) / 1000  # Limit to 60 FPS
 

@@ -55,5 +55,8 @@ def listening(state: State, dt) -> State:
                 return state.next(Action.DECREASE_LEFT, dt)
             if event.key == pygame.K_SPACE:
                 return state.next(Action.BREAK, dt)
+        # Quit Game
+        if event.type == pygame.QUIT:
+            pygame.quit()
 
     return state.next(Action.NOTHING, dt)

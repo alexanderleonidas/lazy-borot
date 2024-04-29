@@ -1,5 +1,2 @@
 pygame
 numpy
-copy
-random
-math

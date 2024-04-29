@@ -6,7 +6,9 @@ from models.action import Action
 from models.borot import Borot
 from models.world import World
 from utils import galilei
-from utils.utils import intersects
+from utils.utils import intersects, intersects_and_closest_point
+
+ESCAPE_SCALAR = 5
 
 
 class State:
@@ -42,7 +44,30 @@ class State:
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
             return new_state
 
-        # The Robot has collided with something and its velocity is 0 again. Theta remains as is.
+        # The robot has collided with an obstacle and it should move along the tangent of the obstacle
         collision_state = deepcopy(self)
-        collision_state.borot().crash()
-        return collision_state
+        collision_state.borot().update_theta(new_state.borot().theta())
+        new_speed = new_state.borot().speed()
+        collision_state.borot().update_speed(new_speed[0], new_speed[1])
+
+        for obstacle in new_state.obstacles():
+            found = intersects_and_closest_point(new_state.borot().position_with_body(), obstacle)
+            if found:
+                if found[0] == "top":
+                    collision_state.borot().update_position((collision_state.borot().position()[0] + ESCAPE_SCALAR * dt, collision_state.borot().position()[1]))
+                elif found[0] == "bottom":
+                    collision_state.borot().update_position((collision_state.borot().position()[0] + ESCAPE_SCALAR * dt, collision_state.borot().position()[1]))
+                elif found[0] == "left":
+                    collision_state.borot().update_position((collision_state.borot().position()[0], collision_state.borot().position()[1] + ESCAPE_SCALAR * dt))
+                elif found[0] == "right":
+                    collision_state.borot().update_position((collision_state.borot().position()[0], collision_state.borot().position()[1] + ESCAPE_SCALAR * dt))
+                else:
+                    collision_state.borot().crash()
+                break
+
+        collision_state.borot().compute_sensor_distances(collision_state.obstacles())
+
+        if collision_state != self:
+            return collision_state
+
+        return new_state

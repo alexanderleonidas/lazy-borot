@@ -108,6 +108,10 @@ class Borot:
     def update_theta(self, new_theta: float) -> None:
         self.__theta = new_theta
 
+    def update_speed(self, v_l: int, v_r: int) -> None:
+        self.__v_l = v_l
+        self.__v_r = v_r
+
     def speed(self) -> tuple:
         return self.__v_l, self.__v_r
 

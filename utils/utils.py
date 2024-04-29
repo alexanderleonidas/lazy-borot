@@ -8,6 +8,28 @@ def intersects(item: tuple, other: tuple) -> bool:
 
     return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
 
+def intersects_and_closest_point(item: tuple, other: tuple) -> Optional[tuple]:
+    x1, y1, w1, h1 = item
+    x2, y2, w2, h2 = other
+
+    if x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2:
+        closest_x = max(x1, x2)
+        closest_y = max(y1, y2)
+
+        # return the side of the obstacle that was intersected
+        if closest_x == x2:
+            return "left", closest_y
+        if closest_x == x2 + w2:
+            return "right", closest_y
+        if closest_y == y2:
+            return "top", closest_x
+        if closest_y == y2 + h2:
+            return "bottom", closest_x
+
+        # return closest_x, closest_y
+
+    return None
+
 
 def intersects_closest_point(item: tuple, other: tuple) -> tuple:
     x1, y1, w1, h1 = item

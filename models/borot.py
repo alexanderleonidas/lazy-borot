@@ -23,6 +23,8 @@ class Borot:
         self.__v_r = 0
         self.__sensors = []
 
+        self.__trace = []
+
     def move(self, action: Action) -> None:
         if action == Action.INCREASE_RIGHT:
             self.__v_r = min(self.__v_r + CHANGE_BY, self.__max_forward_speed)
@@ -128,3 +130,14 @@ class Borot:
     def crash(self) -> None:
         self.__v_l = 0
         self.__v_r = 0
+
+    def trace(self) -> list:
+        return self.__trace
+
+    def add_trace(self, position: tuple) -> None:
+        if len(self.__trace) > 1000:
+            self.__trace.pop(0)
+
+        self.__trace.append(position)
+
+

@@ -25,6 +25,8 @@ class Picasso:
             self.wall(obstacle)
 
     def robot(self, borot: Borot) -> None:
+        self.draw_robot_trace(borot)
+
         coordinates = borot.position()
         angle = borot.theta()
         radius = borot.radius()
@@ -60,7 +62,13 @@ class Picasso:
             distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
             self.canvas().blit(distance_value, sensor)
 
+    def draw_robot_trace(self, borot: Borot) -> None:
+        if len(borot.trace()) > 1:
+            pygame.draw.lines(self.canvas(), self.trace_color(), False, borot.trace(), 1)
 
+    @staticmethod
+    def trace_color() -> pygame.Color:
+        return pygame.Color('dodgerblue2')
 
     @staticmethod
     def obstacle_color() -> pygame.Color:

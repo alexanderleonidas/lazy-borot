@@ -38,6 +38,7 @@ class State:
         new_state.borot().update_theta(theta_prime)
 
         new_state.borot().compute_sensor_distances(new_state.obstacles())
+        new_state.borot().add_trace(new_state.borot().position())
 
         # If there are no collisions return the next state
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
@@ -74,5 +75,6 @@ class State:
                 break
 
         collision_state.borot().compute_sensor_distances(collision_state.obstacles())
+        collision_state.borot().add_trace(collision_state.borot().position())
 
         return collision_state

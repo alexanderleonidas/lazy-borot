@@ -20,8 +20,8 @@ class Borot:
         self.sensor_endpoints = []
         self.v_l = 0
         self.v_r = 0
-        self.max_speed = 20
-        self.min_speed = -20
+        self.max_speed = 40
+        self.min_speed = -40
         self.wheel_base = 10
         self.axis_length = 50
         self.rect = pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, 2 * self.radius, 2 * self.radius)
@@ -31,13 +31,13 @@ class Borot:
         for event in pygame.event.get():
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_o:
-                    self.v_r = min(self.v_r + 2, self.max_speed)
+                    self.v_r = min(self.v_r + 4, self.max_speed)
                 if event.key == pygame.K_k:
-                    self.v_r = max(self.v_r - 2, self.min_speed)
+                    self.v_r = max(self.v_r - 4, self.min_speed)
                 if event.key == pygame.K_w:
-                    self.v_l = min(self.v_l + 2, self.max_speed)
+                    self.v_l = min(self.v_l + 4, self.max_speed)
                 if event.key == pygame.K_s:
-                    self.v_l = max(self.v_l - 2, self.min_speed)
+                    self.v_l = max(self.v_l - 4, self.min_speed)
                 if event.key == pygame.K_SPACE:
                     self.v_l = 0
                     self.v_r = 0

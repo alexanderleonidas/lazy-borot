@@ -53,6 +53,7 @@ def main():
 
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window
         borot.draw(screen, font)
+        borot.draw_path(surface)
         
         pygame.display.flip()
         dt = clock.tick(50) / 1000  # Limit to 60 FPS

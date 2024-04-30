@@ -26,6 +26,7 @@ class Borot:
         self.axis_length = 50
         self.rect = pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, 2 * self.radius, 2 * self.radius)
         self.update_rect() 
+        self.path = [] 
         
     def handle_keys(self):
         for event in pygame.event.get():
@@ -79,6 +80,7 @@ class Borot:
         self.position = new_pos
         self.direction = new_dir
         self.theta = new_theta
+        self.path.append(self.position)
 
             
 # ----------------------------------------------- Testing Collision -----------------------------------------------#
@@ -154,6 +156,7 @@ class Borot:
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
         self.draw_motor_speed(surface, font)
         self.draw_sensor_values(surface, font)  # Draw the sensor values
+        #self.draw_path(surface)
         # self.draw_icc(surface) #draw ICC
         # self.draw_axes(surface) #draw axes
 
@@ -207,3 +210,9 @@ class Borot:
 
         pygame.draw.line(surface, RED, self.position, end_x_axis, 2)
         pygame.draw.line(surface, BLUE, self.position, end_y_axis, 2)
+
+    def draw_path(self, surface):
+        if len(self.path) > 1:
+            # Draw lines between each consecutive position
+            pygame.draw.lines(surface, BLACK, False, self.path, 2)
+

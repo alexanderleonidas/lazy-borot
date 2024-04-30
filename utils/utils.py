@@ -13,11 +13,6 @@ def intersects_and_closest_point(item: tuple, other: tuple) -> Optional[tuple]:
     x2, y2, w2, h2 = other
 
     if intersects(item, other):
-        closest_x = max(x1, x2)
-        closest_y = max(y1, y2)
-
-        # return the side of the obstacle that was intersected
-
         horizontal_overlap = 0
         vertical_overlap = 0
         if x1 < y1:

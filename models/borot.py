@@ -8,9 +8,6 @@ from utils.utils import distance_between_points, clipline
 
 CHANGE_BY = 5
 N_SENSORS = 12
-SENSOR_DEGREES = [
-    0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330
-]
 
 SENSOR_LENGTH = 50
 
@@ -78,8 +75,8 @@ class Borot:
 
                 if intersects := intersections:
                     for point in intersects:
-                        # distance = distance_between_points((x, y), point)
                         intersection_point = pygame.math.Vector2(point)
+                        # distance = distance_between_points((x, y), point)
                         distance = (robot_vec2 - intersection_point).length()
 
                         if min_distance is None or distance < min_distance:

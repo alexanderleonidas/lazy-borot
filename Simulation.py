@@ -5,7 +5,7 @@ import pygame
 from Borot import Borot, SENSOR_LENGTH
 from Picasso import Picasso
 from Physics import Physics
-
+from Kalman import KalmanFilter
 # Constants for the game
 SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 800
 WALL_THICKNESS = 15

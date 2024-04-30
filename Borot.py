@@ -168,6 +168,7 @@ class Borot:
         self.draw_motor_speed(surface, font)
         self.draw_sensor_values(surface, font)  # Draw the sensor values
         self.draw_ellipses(surface)
+        self.draw_predicted_path(surface)
         #self.draw_path(surface)
         # self.draw_icc(surface) #draw ICC
         # self.draw_axes(surface) #draw axes
@@ -238,3 +239,15 @@ class Borot:
             rotated_ellipse = pygame.transform.rotate(pygame.Surface((2 * x_radius, 2 * y_radius), pygame.SRCALPHA), -angle)
             pygame.draw.ellipse(rotated_ellipse, (0, 255, 0, 50), pygame.Rect(0, 0, 2 * x_radius, 2 * y_radius))
             surface.blit(rotated_ellipse, ellipse_rect.topleft)
+    
+    def draw_predicted_path(self, surface):
+        if len(self.kalman_filter.predictiontrack) > 1:
+            for i in range(1, len(self.kalman_filter.predictiontrack)):
+                if i % 2 == 0:  # Only draw every other segment to create a dotted effect
+                    start_pos = self.kalman_filter.predictiontrack[i - 1]
+                    end_pos = self.kalman_filter.predictiontrack[i]
+                    # Ensure coordinates are in the correct integer format
+                    start_pos = (int(start_pos[0]), int(start_pos[1]))
+                    end_pos = (int(end_pos[0]), int(end_pos[1]))
+                    pygame.draw.line(surface, RED, start_pos, end_pos, 2)
+

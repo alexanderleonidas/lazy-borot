@@ -73,7 +73,7 @@ class KalmanFilter:
             self.S = S
             self.m = m
             return 1
-
+        
     def ellipses(self):
         # ------visualize-----
         a = self.S[0][0]

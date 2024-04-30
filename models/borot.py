@@ -10,7 +10,7 @@ from utils.utils import distance_between_points, clipline
 CHANGE_BY = 5
 N_SENSORS = 12
 
-SENSOR_LENGTH = 50
+SENSOR_LENGTH = 110
 
 SIGMA_MOV = 0.1
 SIGMA_ROT = 0.1
@@ -59,6 +59,7 @@ class Borot:
         robot_x, robot_y = self.position()
         return robot_x, robot_y, x, y
 
+    # TODO: Change Sensor Logic to use a continuous radius (radar-like) instead of a laser-like sensor
     def compute_sensor_distances(self, obstacles: list) -> None:
         current_degree = 0
         relative_increase = 360 / N_SENSORS

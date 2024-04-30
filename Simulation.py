@@ -5,7 +5,7 @@ import pygame
 from Borot import Borot, SENSOR_LENGTH
 from Picasso import Picasso
 from Physics import Physics
-
+from Kalman import KalmanFilter
 # Constants for the game
 SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 800
 WALL_THICKNESS = 15
@@ -53,6 +53,7 @@ def main():
 
         screen.blit(surface, (0, 0))  # Copy the obstacle surface onto the main window
         borot.draw(screen, font)
+        borot.draw_path(surface)
         
         pygame.display.flip()
         dt = clock.tick(50) / 1000  # Limit to 60 FPS

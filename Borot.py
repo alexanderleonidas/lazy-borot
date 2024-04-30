@@ -1,6 +1,7 @@
 import pygame
 import math
 import random
+from Kalman import KalmanFilter
 
 SENSOR_LENGTH = 100  # Length of each sensor
 SENSOR_COUNT = 12  # Number of sensors
@@ -9,6 +10,7 @@ BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
+filter = KalmanFilter
 
 class Borot:
     def __init__(self):
@@ -26,6 +28,12 @@ class Borot:
         self.axis_length = 50
         self.rect = pygame.Rect(self.position.x - self.radius, self.position.y - self.radius, 2 * self.radius, 2 * self.radius)
         self.update_rect() 
+        self.path = []
+        
+        # Initial state [x, y, theta]
+        initial_state = [self.position.x, self.position.y, self.theta]
+        # Initialize the Kalman filter (dt, state, sigma_mov, sigma_rot, sigma_ser_mov, sigma_ser_rot)
+        self.kalman_filter = filter(1/50.0, initial_state, 0.1, 0.1, 0.01, 0.01) 
         
     def handle_keys(self):
         for event in pygame.event.get():
@@ -79,6 +87,11 @@ class Borot:
         self.position = new_pos
         self.direction = new_dir
         self.theta = new_theta
+        self.path.append(self.position)
+
+        z = [new_pos.x, new_pos.y, new_theta]  # Simulated sensor reading
+        v, w = self.v_l, self.v_r  # velocities as controls
+        self.kalman_filter.localization(z, v, w, [new_pos.x, new_pos.y, new_theta])
 
             
 # ----------------------------------------------- Testing Collision -----------------------------------------------#
@@ -154,6 +167,9 @@ class Borot:
         pygame.draw.line(surface, BLACK, self.position, end_pos, 2)
         self.draw_motor_speed(surface, font)
         self.draw_sensor_values(surface, font)  # Draw the sensor values
+        self.draw_ellipses(surface)
+        self.draw_predicted_path(surface)
+        #self.draw_path(surface)
         # self.draw_icc(surface) #draw ICC
         # self.draw_axes(surface) #draw axes
 
@@ -207,3 +223,31 @@ class Borot:
 
         pygame.draw.line(surface, RED, self.position, end_x_axis, 2)
         pygame.draw.line(surface, BLUE, self.position, end_y_axis, 2)
+
+    def draw_path(self, surface):
+        if len(self.path) > 1:
+            # Draw lines between each consecutive position
+            pygame.draw.lines(surface, BLACK, False, self.path, 2)
+
+    def draw_ellipses(self, surface):
+        for ellipse_data in self.kalman_filter.history:
+            x_radius, y_radius, angle = ellipse_data
+            # Calculate position for the ellipse
+            center = (int(self.position.x), int(self.position.y))
+            # Create an ellipse rotated by 'angle'
+            ellipse_rect = pygame.Rect(center[0] - x_radius, center[1] - y_radius, 2 * x_radius, 2 * y_radius)
+            rotated_ellipse = pygame.transform.rotate(pygame.Surface((2 * x_radius, 2 * y_radius), pygame.SRCALPHA), -angle)
+            pygame.draw.ellipse(rotated_ellipse, (0, 255, 0, 50), pygame.Rect(0, 0, 2 * x_radius, 2 * y_radius))
+            surface.blit(rotated_ellipse, ellipse_rect.topleft)
+    
+    def draw_predicted_path(self, surface):
+        if len(self.kalman_filter.predictiontrack) > 1:
+            for i in range(1, len(self.kalman_filter.predictiontrack)):
+                if i % 2 == 0:  # Only draw every other segment to create a dotted effect
+                    start_pos = self.kalman_filter.predictiontrack[i - 1]
+                    end_pos = self.kalman_filter.predictiontrack[i]
+                    # Ensure coordinates are in the correct integer format
+                    start_pos = (int(start_pos[0]), int(start_pos[1]))
+                    end_pos = (int(end_pos[0]), int(end_pos[1]))
+                    pygame.draw.line(surface, RED, start_pos, end_pos, 2)
+

@@ -57,10 +57,7 @@ class State:
             robot_position = new_state.borot().position_with_body()
             found = intersects_and_closest_point(robot_position, obstacle)
             if found:
-                degrees = math.degrees(collision_state.borot().theta())
                 escape_position = collision_state.borot().position()
-
-                print(degrees, found[0])
 
                 horizontal_overlap, vertical_overlap = found
 

@@ -1,20 +1,18 @@
 import numpy as np 
 import math
 
-
 class KalmanFilter:
 
-    def __init__(self, dt, state, sigma_mov, sigma_rot, sigma_ser_mov, sigma_ser_rot):
+    def __init__(self, filter_state, sigma_mov, sigma_rot, sigma_ser_mov, sigma_ser_rot):
         # state = [x,y,theta]
-        self.state = state
-        self.theta = state[2]
+        self.state = filter_state
+        self.theta = filter_state[2]
 
         # prediction/transition matrix
         self.A = np.eye(3)
 
         # control matrix
-        self.B = [[dt * np.cos(self.theta), 0],
-                  [dt * np.sin(self.theta), 0], [0, dt]]
+        self.B = np.zeros((3, 2))
         
         # sensor information
         self.C = np.eye(3)
@@ -29,7 +27,7 @@ class KalmanFilter:
         self.S = np.eye(3) * 0.001
 
         # get z and C from the sensors
-        self.predictiontrack = [(state[0], state[1])]
+        self.predictiontrack = [(filter_state[0], filter_state[1])]
 
         self.m = self.state
 
@@ -38,10 +36,18 @@ class KalmanFilter:
         self.location = []
         self.counter = 0
 
-    def localization(self, z, v, w, m):
+    def localization(self, z, v, w, m, dt):
 
         # -----prediction-----
         self.m = m
+
+        # Update Control Matrix B based on current theta
+        self.B = np.array([[dt * np.cos(self.theta), 0],
+                  [dt * np.sin(self.theta), 0], [0, dt]])
+
+        # Predict state using control inputs
+        u = np.array([v, w])
+        self.m = np.dot(self.A, self.m) + np.dot(self.B, u)
 
         # -----covariance prediction-----
         self.S = np.matmul(np.matmul(self.A, self.S), np.transpose(self.A)) + self.R
@@ -58,7 +64,7 @@ class KalmanFilter:
             self.location.append((self.state[0], self.state[1]))
 
         # new state
-        if z == None:
+        if z is None:
             m = self.m
             self.predictiontrack.append([m[0], m[1], m[2]])
 
@@ -83,13 +89,14 @@ class KalmanFilter:
         l2 = (a + c) / 2 - np.sqrt(((a - c) / 2) ** 2 + b ** 2)
         if b == 0 and a >= c:
             theta = 0
-        if b == 0 and a < c:
+        elif b == 0 and a < c:
             theta = np.pi / 2
         else:
             theta = math.atan2(l1 - a, b)
         x = np.sqrt(abs(l1))
         y = np.sqrt(abs(l2))
         ellipse = (x, y, math.degrees(theta))
+
         return ellipse
 
 

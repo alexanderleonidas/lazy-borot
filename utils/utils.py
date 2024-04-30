@@ -25,7 +25,7 @@ def intersects_and_closest_point(item: tuple, other: tuple) -> Optional[tuple]:
         else:
             vertical_overlap = (y2 + h2) - (y1 - h1)
 
-        return (horizontal_overlap, vertical_overlap)
+        return horizontal_overlap, vertical_overlap
 
     return None
 

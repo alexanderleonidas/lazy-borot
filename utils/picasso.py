@@ -24,6 +24,8 @@ class Picasso:
         for obstacle in world.obstacles():
             self.wall(obstacle)
 
+        self.draw_landmark(world.landmarks())
+
     def robot(self, borot: Borot) -> None:
         # self.draw_robot_trace(borot)
         self.draw_robot_trace_prediction(borot)
@@ -88,6 +90,14 @@ class Picasso:
             rotated_ellipse = pygame.transform.rotate(pygame.Surface((2*x_radius, 2*y_radius), pygame.SRCALPHA), -angle)
             pygame.draw.ellipse(rotated_ellipse, self.ellipses_color(), pygame.Rect(0, 0, 2*x_radius, 2*y_radius))
             self.canvas().blit(rotated_ellipse, ellipse_rect.topleft)
+
+    def draw_landmark(self, landmarks: list) -> None:
+        for landmark in landmarks:
+            pygame.draw.circle(self.canvas(), self.landmark_color(), landmark, 2)
+
+    @staticmethod
+    def landmark_color():
+        return pygame.Color('black')
 
     @staticmethod
     def ellipses_color():

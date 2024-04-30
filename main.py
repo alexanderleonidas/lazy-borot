@@ -18,6 +18,7 @@ def run():
     surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 
     world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS)
+    world.find_landmarks()
     font = pygame.font.SysFont('Comic Sans MS', 10)
     picasso = Picasso(surface, font)
 

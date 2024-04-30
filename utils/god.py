@@ -12,10 +12,10 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
     world = World(width, height, n_obstacles, obstacle_size, wall_thickness)
 
     # Draw Walls around the map
-    world.add_obstacle((0, 0, width, wall_thickness))
+    world.add_obstacle((wall_thickness, 0, width - (2*wall_thickness), wall_thickness))
     world.add_obstacle((0, 0, wall_thickness, height))
     world.add_obstacle((width - wall_thickness, 0, wall_thickness, height))
-    world.add_obstacle((0, height - wall_thickness, width, wall_thickness))
+    world.add_obstacle((wall_thickness, height - wall_thickness, width - (2*wall_thickness), wall_thickness))
 
     # Place Random Obstacles Throughout the World
     for _ in range(n_obstacles):

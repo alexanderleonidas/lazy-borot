@@ -59,7 +59,7 @@ class KalmanFilter:
 
         # draw every 20 step
         self.counter += 1
-        if self.counter % 30 == 0:
+        if self.counter % 1 == 0:
             self.history.append(self.ellipses())
             self.location.append((self.state[0], self.state[1]))
 

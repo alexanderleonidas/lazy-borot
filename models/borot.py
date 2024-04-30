@@ -4,12 +4,18 @@ import numpy as np
 import pygame
 
 from models.action import Action
+from models.filter import KalmanFilter
 from utils.utils import distance_between_points, clipline
 
 CHANGE_BY = 5
 N_SENSORS = 12
 
 SENSOR_LENGTH = 50
+
+SIGMA_MOV = 0.1
+SIGMA_ROT = 0.1
+SIGMA_SER_MOV = 0.01
+SIGMA_SER_ROT = 0.01
 
 
 class Borot:
@@ -24,6 +30,8 @@ class Borot:
         self.__sensors = []
 
         self.__trace = []
+        self.__filter = KalmanFilter([self.position()[0], self.position()[1], self.theta()], SIGMA_MOV, SIGMA_ROT,
+                                     SIGMA_SER_MOV, SIGMA_SER_ROT)
 
     def move(self, action: Action) -> None:
         if action == Action.INCREASE_RIGHT:
@@ -139,5 +147,8 @@ class Borot:
             self.__trace.pop(0)
 
         self.__trace.append(position)
+
+    def filter(self):
+        return self.__filter
 
 

@@ -25,7 +25,9 @@ class Picasso:
             self.wall(obstacle)
 
     def robot(self, borot: Borot) -> None:
-        self.draw_robot_trace(borot)
+        # self.draw_robot_trace(borot)
+        self.draw_robot_trace_prediction(borot)
+        self.draw_ellipses(borot)
 
         coordinates = borot.position()
         angle = borot.theta()
@@ -65,6 +67,35 @@ class Picasso:
     def draw_robot_trace(self, borot: Borot) -> None:
         if len(borot.trace()) > 1:
             pygame.draw.lines(self.canvas(), self.trace_color(), False, borot.trace(), 1)
+
+    def draw_robot_trace_prediction(self, borot: Borot) -> None:
+        if len(borot.filter().predictiontrack) > 1:
+            for i in range(1, len(borot.filter().predictiontrack)):
+                if i % 20 == 0:
+                    start_pos = borot.filter().predictiontrack[i - 1]
+                    end_pos = borot.filter().predictiontrack[i]
+                    start_pos = (int(start_pos[0]), int(start_pos[1]))
+                    end_pos = (int(end_pos[0]), int(end_pos[1]))
+                    pygame.draw.line(self.canvas(), self.predicted_trace_color(), start_pos, end_pos, 1)
+
+    def draw_ellipses(self, borot: Borot) -> None:
+        for data in borot.filter().history:
+            # TODO: Keep an eye out for the radius, it might be wrong
+            #  (as of 2024/04/30 it is giving extremely small values e.g. 0.3....)
+            x_radius, y_radius, angle = data
+            center = (int(borot.position()[0]), int(borot.position()[1]))
+            ellipse_rect = pygame.Rect(center[0] - x_radius, center[1] - y_radius, x_radius * 2, y_radius * 2)
+            rotated_ellipse = pygame.transform.rotate(pygame.Surface((2*x_radius, 2*y_radius), pygame.SRCALPHA), -angle)
+            pygame.draw.ellipse(rotated_ellipse, self.ellipses_color(), pygame.Rect(0, 0, 2*x_radius, 2*y_radius))
+            self.canvas().blit(rotated_ellipse, ellipse_rect.topleft)
+
+    @staticmethod
+    def ellipses_color():
+        return pygame.Color('gold')
+
+    @staticmethod
+    def predicted_trace_color():
+        return pygame.Color('fuchsia')
 
     @staticmethod
     def trace_color() -> pygame.Color:

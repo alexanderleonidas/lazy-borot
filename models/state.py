@@ -37,11 +37,17 @@ class State:
         new_state.borot().update_position((x_prime, y_prime))
         new_state.borot().update_theta(theta_prime)
 
-        new_state.borot().compute_sensor_distances(new_state.obstacles())
-        new_state.borot().add_trace(new_state.borot().position())
-
         # If there are no collisions return the next state
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
+            new_state.borot().compute_sensor_distances(new_state.obstacles())
+            new_state.borot().add_trace(new_state.borot().position())
+            z = [new_state.borot().position()[0], new_state.borot().position()[1], new_state.borot().theta()]
+            v = new_state.borot().speed()[0]
+            w = new_state.borot().speed()[1]
+            m = z # Could be that this needs to be the filter from the previous state
+
+            new_state.borot().filter().localization(z, v, w, m, dt)
+
             return new_state
 
         return self.collision_handling(new_state, dt)
@@ -73,5 +79,12 @@ class State:
 
         collision_state.borot().compute_sensor_distances(collision_state.obstacles())
         collision_state.borot().add_trace(collision_state.borot().position())
+
+        z = [collision_state.borot().position()[0], collision_state.borot().position()[1], collision_state.borot().theta()]
+        v = collision_state.borot().speed()[0]
+        w = collision_state.borot().speed()[1]
+        m = z  # Could be that this needs to be the filter from the previous state
+
+        collision_state.borot().filter().localization(z, v, w, m, dt)
 
         return collision_state

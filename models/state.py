@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from copy import deepcopy
 
 from models.action import Action
@@ -7,8 +8,6 @@ from models.borot import Borot
 from models.world import World
 from utils import galilei
 from utils.utils import intersects, intersects_and_closest_point
-
-ESCAPE_SCALAR = 5
 
 
 class State:
@@ -51,23 +50,26 @@ class State:
         collision_state.borot().update_speed(new_speed[0], new_speed[1])
 
         for obstacle in new_state.obstacles():
-            found = intersects_and_closest_point(new_state.borot().position_with_body(), obstacle)
+            robot_position = new_state.borot().position_with_body()
+            found = intersects_and_closest_point(robot_position, obstacle)
             if found:
-                if found[0] == "top":
-                    collision_state.borot().update_position((collision_state.borot().position()[0] + ESCAPE_SCALAR * dt, collision_state.borot().position()[1]))
-                elif found[0] == "bottom":
-                    collision_state.borot().update_position((collision_state.borot().position()[0] + ESCAPE_SCALAR * dt, collision_state.borot().position()[1]))
-                elif found[0] == "left":
-                    collision_state.borot().update_position((collision_state.borot().position()[0], collision_state.borot().position()[1] + ESCAPE_SCALAR * dt))
-                elif found[0] == "right":
-                    collision_state.borot().update_position((collision_state.borot().position()[0], collision_state.borot().position()[1] + ESCAPE_SCALAR * dt))
+                degrees = math.degrees(collision_state.borot().theta())
+                escape_position = collision_state.borot().position()
+
+                print(degrees, found[0])
+
+                horizontal_overlap, vertical_overlap = found
+
+                if abs(horizontal_overlap) < abs(vertical_overlap):
+                    escape_vector = (-horizontal_overlap if robot_position[0] < obstacle[0] else horizontal_overlap, 0)
                 else:
-                    collision_state.borot().crash()
+                    escape_vector = (0, -vertical_overlap if robot_position[1] < obstacle[1] else vertical_overlap)
+
+                new_pos_x = escape_position[0] + escape_vector[0] * dt
+                new_pos_y = escape_position[1] + escape_vector[1] * dt
+                collision_state.borot().update_position((new_pos_x, new_pos_y))
                 break
 
         collision_state.borot().compute_sensor_distances(collision_state.obstacles())
 
-        if collision_state != self:
-            return collision_state
-
-        return new_state
+        return collision_state

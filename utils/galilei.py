@@ -47,15 +47,13 @@ def get_diameter(radius):
 
 
 def motion_of_robot_rotation(v_l, v_r, radius, theta, position, dt):
-    l = get_diameter(radius)
-
     if v_l == v_r:
         dx = v_l * math.cos(theta) * dt
         dy = v_l * math.sin(theta) * dt
         new_position = (position[0] + dx, position[1] + dy)
         new_theta = theta
     elif v_l == -v_r:
-        omega = (v_r - v_l) / l
+        omega = rate_of_rotation(v_l, v_r, radius)
         new_position = position
         new_theta = theta + omega * dt
     else:

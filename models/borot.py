@@ -1,5 +1,6 @@
 import math
 
+import numpy as np
 import pygame
 
 from models.action import Action
@@ -68,18 +69,27 @@ class Borot:
             min_distance = None
 
             for obstacle in obstacles:
-                intersections = clipline(obstacle, (robot_x, robot_y), (x, y))
+                obstacle_vec2 = pygame.Rect(obstacle)
+                robot_vec2 = pygame.math.Vector2(robot_x, robot_y)
+                sensor_vec2 = pygame.math.Vector2(x, y)
+
+                intersections = obstacle_vec2.clipline(robot_vec2, sensor_vec2)
+                # intersections = clipline(obstacle, (robot_x, robot_y), (x, y))
 
                 if intersects := intersections:
                     for point in intersects:
-                        distance = distance_between_points((x, y), point)
+                        # distance = distance_between_points((x, y), point)
+                        intersection_point = pygame.math.Vector2(point)
+                        distance = (robot_vec2 - intersection_point).length()
 
-                        if min_distance is None or distance > min_distance:
+                        if min_distance is None or distance < min_distance:
                             min_distance = distance
-                            closest_point = point
+                            closest_point = intersection_point
 
             if min_distance is None:
                 min_distance = SENSOR_LENGTH
+
+            min_distance = min_distance - self.radius()
 
             sensors.append((current_degree, closest_point, min_distance))
             current_degree += relative_increase

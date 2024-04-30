@@ -43,6 +43,9 @@ class State:
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
             return new_state
 
+        return self.collision_handling(new_state, dt)
+
+    def collision_handling(self, new_state, dt):
         # The robot has collided with an obstacle and it should move along the tangent of the obstacle
         collision_state = deepcopy(self)
         collision_state.borot().update_theta(new_state.borot().theta())

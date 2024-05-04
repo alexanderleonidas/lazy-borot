@@ -60,7 +60,7 @@ class Borot:
         return robot_x, robot_y, x, y
 
     # TODO: Change Sensor Logic to use a continuous radius (radar-like) instead of a laser-like sensor
-    def compute_sensor_distances(self, obstacles: list) -> None:
+    def compute_sensor_distances(self, obstacles: list, landmarks: list) -> None:
         current_degree = 0
         relative_increase = 360 / N_SENSORS
 
@@ -69,6 +69,23 @@ class Borot:
         robot_position = self.position()
         robot_x = robot_position[0]
         robot_y = robot_position[1]
+        robot_vec2 = pygame.math.Vector2(robot_x, robot_y)
+
+        # Initial closest landmark determination
+        closest_landmark = None
+        min_landmark_distance = SENSOR_LENGTH  # Only consider landmarks within sensor length
+
+        for landmark in landmarks:
+            landmark_position = pygame.math.Vector2(landmark)
+            distance_to_landmark = (robot_vec2 - landmark_position).length()
+
+            if distance_to_landmark <= SENSOR_LENGTH and (closest_landmark is None or distance_to_landmark < min_landmark_distance):
+                min_landmark_distance = distance_to_landmark
+                closest_landmark = landmark
+
+        # Add the closest landmark to sensors list if it exists
+        if closest_landmark:
+            sensors.append(('Landmark', closest_landmark, min_landmark_distance - self.radius()))
 
         for _ in range(N_SENSORS):
             x, y = self.get_sensor_endpoint(current_degree)
@@ -78,7 +95,6 @@ class Borot:
 
             for obstacle in obstacles:
                 obstacle_vec2 = pygame.Rect(obstacle)
-                robot_vec2 = pygame.math.Vector2(robot_x, robot_y)
                 sensor_vec2 = pygame.math.Vector2(x, y)
 
                 intersections = obstacle_vec2.clipline(robot_vec2, sensor_vec2)
@@ -93,7 +109,7 @@ class Borot:
                         if min_distance is None or distance < min_distance:
                             min_distance = distance
                             closest_point = intersection_point
-
+        
             if min_distance is None:
                 min_distance = SENSOR_LENGTH
 

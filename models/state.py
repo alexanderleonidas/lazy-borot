@@ -26,6 +26,9 @@ class State:
 
     def obstacles(self) -> list:
         return self.world().obstacles()
+    
+    def landmarks(self) -> list:
+        return self.world().landmarks()
 
     def next(self, action: Action, dt) -> State:
         current_state = deepcopy(self)
@@ -39,7 +42,7 @@ class State:
 
         # If there are no collisions return the next state
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
-            new_state.borot().compute_sensor_distances(new_state.obstacles())
+            new_state.borot().compute_sensor_distances(new_state.obstacles(), new_state.landmarks())
             new_state.borot().add_trace(new_state.borot().position())
             z = [new_state.borot().position()[0], new_state.borot().position()[1], new_state.borot().theta()]
             v = new_state.borot().speed()[0]
@@ -77,7 +80,7 @@ class State:
                 collision_state.borot().update_position((new_pos_x, new_pos_y))
                 break
 
-        collision_state.borot().compute_sensor_distances(collision_state.obstacles())
+        collision_state.borot().compute_sensor_distances(collision_state.obstacles(), collision_state.landmarks())
         collision_state.borot().add_trace(collision_state.borot().position())
 
         z = [collision_state.borot().position()[0], collision_state.borot().position()[1], collision_state.borot().theta()]

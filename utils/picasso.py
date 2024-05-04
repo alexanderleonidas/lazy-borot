@@ -60,11 +60,18 @@ class Picasso:
         self.canvas().blit(speed_right_surface, (20, self.canvas().get_height() - 40))
 
     def sensors(self, borot: Borot) -> None:
+        first = True
         for degree, sensor, distance in borot.sensors():
-            pygame.draw.line(self.canvas(), self.sensor_color(), borot.position(), sensor, 2)
-            pygame.draw.circle(self.canvas(), self.sensor_endpoint_color(), sensor, 2)
-            distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
-            self.canvas().blit(distance_value, sensor)
+            if first: # Draw the sensor line to the landmark as it is the first element in the list
+                pygame.draw.line(self.canvas(), self.landmark_sensor_color(), borot.position(), sensor, 2)
+                distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
+                self.canvas().blit(distance_value, sensor)
+                first = False
+            else:
+                pygame.draw.line(self.canvas(), self.sensor_color(), borot.position(), sensor, 2)
+                pygame.draw.circle(self.canvas(), self.sensor_endpoint_color(), sensor, 2)
+                distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
+                self.canvas().blit(distance_value, sensor)
 
     def draw_robot_trace(self, borot: Borot) -> None:
         if len(borot.trace()) > 1:
@@ -133,7 +140,11 @@ class Picasso:
 
     @staticmethod
     def sensor_color() -> pygame.Color:
-        return pygame.Color('green')
+        return pygame.Color('goldenrod4')
+    
+    @staticmethod
+    def landmark_sensor_color() -> pygame.Color:
+        return pygame.Color('chartreuse2')
 
     @staticmethod
     def sensor_endpoint_color() -> pygame.Color:

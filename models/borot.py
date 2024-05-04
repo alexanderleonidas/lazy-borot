@@ -79,13 +79,18 @@ class Borot:
             landmark_position = pygame.math.Vector2(landmark)
             distance_to_landmark = (robot_vec2 - landmark_position).length()
 
-            if distance_to_landmark <= SENSOR_LENGTH and (closest_landmark is None or distance_to_landmark < min_landmark_distance):
-                min_landmark_distance = distance_to_landmark
-                closest_landmark = landmark
+             # Check if the landmark is within the sensor's range
+            if distance_to_landmark <= SENSOR_LENGTH:
+                # Append the landmark and its distance to the list, adjusting for the robot's radius
+                sensors.append(('Landmark', landmark, distance_to_landmark - self.radius()))
+
+            # if distance_to_landmark <= SENSOR_LENGTH and (closest_landmark is None or distance_to_landmark < min_landmark_distance):
+            #     min_landmark_distance = distance_to_landmark
+            #     closest_landmark = landmark
 
         # Add the closest landmark to sensors list if it exists
-        if closest_landmark:
-            sensors.append(('Landmark', closest_landmark, min_landmark_distance - self.radius()))
+        # if closest_landmark:
+        #     sensors.append(('Landmark', closest_landmark, min_landmark_distance - self.radius()))
 
         for _ in range(N_SENSORS):
             x, y = self.get_sensor_endpoint(current_degree)

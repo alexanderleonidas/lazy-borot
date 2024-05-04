@@ -62,7 +62,7 @@ class Picasso:
     def sensors(self, borot: Borot) -> None:
         first = True
         for degree, sensor, distance in borot.sensors():
-            if first: # Draw the sensor line to the landmark as it is the first element in the list
+            if degree == 'Landmark': # Draw the sensor line to the landmark as it is the first element in the list
                 pygame.draw.line(self.canvas(), self.landmark_sensor_color(), borot.position(), sensor, 2)
                 distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
                 self.canvas().blit(distance_value, sensor)

@@ -11,6 +11,7 @@ class Picasso:
     def __init__(self, surface: Surface, font: pygame.font.Font):
         self.__surface = surface
         self.__font = font
+        self.__ellipses = []
 
     def font(self) -> pygame.font.Font:
         return self.__font
@@ -82,7 +83,7 @@ class Picasso:
     def draw_robot_trace_prediction(self, borot: Borot) -> None:
         if len(borot.filter().predictiontrack) > 1:
             for i in range(1, len(borot.filter().predictiontrack)):
-                if i % 20 == 0:
+                if i % 10 == 0:
                     start_pos = borot.filter().predictiontrack[i - 1]
                     end_pos = borot.filter().predictiontrack[i]
                     start_pos = (int(start_pos[0]), int(start_pos[1]))
@@ -93,13 +94,25 @@ class Picasso:
         for data in borot.filter().history:
             # TODO: Keep an eye out for the radius, it might be wrong
             #  (as of 2024/04/30 it is giving extremely small values e.g. 0.3....)
-            x_radius, y_radius, angle = data
             center = (int(borot.position()[0]), int(borot.position()[1]))
+
+            history = (center, data)
+
+            if history not in self.__ellipses:
+                self.__ellipses.append(history)
+
+        for data in self.__ellipses:
+            center, relative_data = data
+            x_radius, y_radius, angle = relative_data
+
             ellipse_rect = pygame.Rect(center[0] - x_radius, center[1] - y_radius, x_radius * 2, y_radius * 2)
             rotated_ellipse = pygame.transform.rotate(pygame.Surface((2 * x_radius, 2 * y_radius), pygame.SRCALPHA),
                                                       -angle)
             pygame.draw.ellipse(rotated_ellipse, self.ellipses_color(), pygame.Rect(0, 0, 2 * x_radius, 2 * y_radius))
             self.canvas().blit(rotated_ellipse, ellipse_rect.topleft)
+
+    def get_ellipses(self):
+        return self.__ellipses
 
     def draw_landmark(self, landmarks: list) -> None:
         for landmark in landmarks:

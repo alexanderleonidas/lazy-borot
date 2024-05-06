@@ -25,6 +25,7 @@ class Picasso:
             self.wall(obstacle)
 
         self.draw_landmark(world.landmarks())
+        self.find_beacon(world.borot().get_landmark_sensors(), world.borot())
 
     def robot(self, borot: Borot) -> None:
         # self.draw_robot_trace(borot)
@@ -62,8 +63,8 @@ class Picasso:
     def sensors(self, borot: Borot) -> None:
         first = True
         for degree, sensor, distance in borot.sensors():
-            if degree == 'Landmark': # Draw the sensor line to the landmark as it is the first element in the list
-                pygame.draw.line(self.canvas(), self.landmark_sensor_color(), borot.position(), sensor, 2)
+            if degree == 'Landmark':  # Draw the sensor line to the landmark as it is the first element in the list
+                #pygame.draw.line(self.canvas(), self.landmark_sensor_color(), borot.position(), sensor, 2)
                 distance_value = self.font().render(f'{int(distance)}', True, self.text_color())
                 self.canvas().blit(distance_value, sensor)
                 first = False
@@ -94,18 +95,20 @@ class Picasso:
             x_radius, y_radius, angle = data
             center = (int(borot.position()[0]), int(borot.position()[1]))
             ellipse_rect = pygame.Rect(center[0] - x_radius, center[1] - y_radius, x_radius * 2, y_radius * 2)
-            rotated_ellipse = pygame.transform.rotate(pygame.Surface((2*x_radius, 2*y_radius), pygame.SRCALPHA), -angle)
-            pygame.draw.ellipse(rotated_ellipse, self.ellipses_color(), pygame.Rect(0, 0, 2*x_radius, 2*y_radius))
+            rotated_ellipse = pygame.transform.rotate(pygame.Surface((2 * x_radius, 2 * y_radius), pygame.SRCALPHA),
+                                                      -angle)
+            pygame.draw.ellipse(rotated_ellipse, self.ellipses_color(), pygame.Rect(0, 0, 2 * x_radius, 2 * y_radius))
             self.canvas().blit(rotated_ellipse, ellipse_rect.topleft)
 
     def draw_landmark(self, landmarks: list) -> None:
         for landmark in landmarks:
             pygame.draw.circle(self.canvas(), self.landmark_color(), landmark, 2)
 
-
-    def find_beacon(screen, beacons):
-        sensor_x = player_robot.x + (ROBOT.get_width() / 2)
-        sensor_y = player_robot.y + (ROBOT.get_height() / 2)
+    def find_beacon(self, beacons, borot: Borot):
+        screen = self.canvas()
+        sensor_range = 100
+        sensor_x = borot.position()[0]
+        sensor_y = borot.position()[1]
 
         beacons_in_proximity = []
         collision_offset = 0
@@ -113,18 +116,18 @@ class Picasso:
 
         for bc in range(len(beacons)):
             dist = (math.sqrt(
-                (beacons[bc].y - sensor_y) ** 2 + (beacons[bc].x - sensor_x) ** 2)) - collision_offset
+                (beacons[bc][1] - sensor_y) ** 2 + (beacons[bc][0] - sensor_x) ** 2)) - collision_offset
             if dist < sensor_range:
                 pygame.draw.line(screen, (0, 255, 0), (sensor_x,
-                                                    sensor_y), (beacons[bc].x, beacons[bc].y), 3)
+                                                       sensor_y), (beacons[bc][0], beacons[bc][1]), 3)
                 # Calc fix
-                fi = math.atan2((beacons[bc].y - sensor_y),
-                                (beacons[bc].x - sensor_x)) - player_robot.theta
+                fi = math.atan2((beacons[bc][1] - sensor_y),
+                                (beacons[bc][0] - sensor_x)) - borot.theta()
                 beacons_in_proximity.append(
-                    (beacons[bc].x, beacons[bc].y, dist + collision_offset, -fi))
+                    (beacons[bc][0], beacons[bc][1], dist + collision_offset, -fi))
                 # print(beacons[bc].x, beacons[bc].y, dist+collision_offset)
                 pygame.draw.circle(screen, (25, 70, 150),
-                                (beacons[bc].x, beacons[bc].y), dist + collision_offset, 2)
+                                   (beacons[bc][0], beacons[bc][1]), dist + collision_offset, 2)
 
         if len(beacons_in_proximity) == 2:
             x0 = beacons_in_proximity[0][0]
@@ -141,8 +144,7 @@ class Picasso:
             # print("FI-2 by detection ", beacons_in_proximity[1][3])
             # print("Theta ", player_robot.theta)
 
-            p1, p2, fipos1, fipos2 = circle_intersection(screen, x0, y0, r0, x1, y1,
-                                                        r1, True, (100, 10, 50), f0, f1)
+            p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1, r1)
 
             # print("REAL POS", (f0, f1))
             # print("POT POS 1", fipos1)
@@ -150,10 +152,10 @@ class Picasso:
 
             if f0 - 0.2 <= fipos1[0] <= f0 + 0.2 and f1 - 0.2 <= fipos1[1] <= f1 + 0.2:
                 # pygame.draw.circle(screen, (100, 10, 50), (p1[0], p1[1]), 5)
-                return (p1[0], p1[1], player_robot.theta)
+                return (p1[0], p1[1], borot.theta())
             else:
                 # pygame.draw.circle(screen, (100, 10, 50), (p2[0], p2[1]), 5)
-                return (p2[0], p2[1], player_robot.theta)
+                return (p2[0], p2[1], borot.theta())
 
         elif len(beacons_in_proximity) > 2:
             x0 = beacons_in_proximity[0][0]
@@ -169,16 +171,16 @@ class Picasso:
             r2 = beacons_in_proximity[2][2]
             f2 = beacons_in_proximity[2][3]
 
-            p1, p2, fipos1, fipos2 = circle_intersection(screen, x0, y0, r0, x1, y1,
-                                                        r1, False, (255, 100, 153), f0, f1)
+            p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1,
+                                                         r1)
             # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
             # pygame.draw.circle(screen, (150, 150, 15), (p2[0], p2[1]), 5)
-            p3, p4, fipos3, fipos4 = circle_intersection(screen, x0, y0, r0, x2, y2,
-                                                        r2, False, (10, 210, 53), f0, f2)
+            p3, p4, fipos3, fipos4 = self.circle_intersection(screen, x0, y0, r0, x2, y2,
+                                                         r2)
             # pygame.draw.circle(screen, (50, 150, 150), (p3[0], p3[1]), 5)
             # pygame.draw.circle(screen, (50, 150, 150), (p4[0], p4[1]), 5)
-            p5, p6, fipos5, fipos6 = circle_intersection(screen, x1, y1, r1, x2, y2,
-                                                        r2, False, (180, 80, 80), f1, f2)
+            p5, p6, fipos5, fipos6 = self.circle_intersection(screen, x1, y1, r1, x2, y2,
+                                                         r2)
             # pygame.draw.circle(screen, (150, 150, 150), (p5[0], p5[1]), 5)
             # pygame.draw.circle(screen, (150, 150, 150), (p6[0], p6[1]), 5)
 
@@ -189,16 +191,16 @@ class Picasso:
             if p1[0] - 5 <= p3[0] <= p1[0] + 5 and p1[1] - 5 <= p3[1] <= p1[1] + 5:
                 # if (p1[0] - 3 < p5[0] < p1[0] + 3 and p1[1] - 3 < p5[1] < p1[1] + 3) or (p1[0] - 3 < p6[0] < p1[0] + 3 and p1[1] - 3 < p6[1] < p1[1] + 3):
                 # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
-                return (p1[0], p1[1], player_robot.theta)
+                return (p1[0], p1[1], borot.theta())
             elif p1[0] - 5 <= p4[0] <= p1[0] + 5 and p1[1] - 5 <= p4[1] <= p1[1] + 5:
                 # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
-                return (p1[0], p1[1], player_robot.theta)
+                return (p1[0], p1[1], borot.theta())
             else:
                 # pygame.draw.circle(screen, (150, 150, 15), (p2[0], p2[1]), 5)
-                return (p2[0], p2[1], player_robot.theta)
+                return (p2[0], p2[1], borot.theta())
 
-
-    def circle_intersection(screen, x0, y0, r0, x1, y1, r1, find_fi, circle_color, fi0, fi1):
+    @staticmethod
+    def circle_intersection(borot, x0, y0, r0, x1, y1, r1):
         d = math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
 
         if d > r0 + r1:
@@ -225,13 +227,13 @@ class Picasso:
             # print("Fi1 ", fi1)
 
             fi03 = math.atan2((y0 - y3),
-                            (x0 - x3)) - player_robot.theta
+                              (x0 - x3)) - borot.theta()
             fi13 = math.atan2((y1 - y3),
-                            (x1 - x3)) - player_robot.theta
+                              (x1 - x3)) - borot.theta()
             fi04 = math.atan2((y0 - y4),
-                            (x0 - x4)) - player_robot.theta
+                              (x0 - x4)) - borot.theta()
             fi14 = math.atan2((y1 - y4),
-                            (x1 - x4)) - player_robot.theta
+                              (x1 - x4)) - borot.theta()
 
             # print("FI pot pos 1 w beacon 1 ", fi03)
             # print("FI pot pos 1 w beacon 2 ", fi13)
@@ -279,7 +281,7 @@ class Picasso:
     @staticmethod
     def sensor_color() -> pygame.Color:
         return pygame.Color('goldenrod4')
-    
+
     @staticmethod
     def landmark_sensor_color() -> pygame.Color:
         return pygame.Color('chartreuse2')

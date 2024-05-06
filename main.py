@@ -39,7 +39,7 @@ def run():
         picasso.robot(current_state.borot())
         pygame.display.flip()
 
-        dt = clock.tick(60) / 1000  # Limit to 60 FPS
+        dt = clock.tick(60) / 500  # Limit to 60 FPS
 
     pygame.quit()
 

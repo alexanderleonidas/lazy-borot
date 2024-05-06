@@ -45,11 +45,11 @@ class State:
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):
             new_state.borot().compute_sensor_distances(new_state.obstacles(), new_state.landmarks())
             new_state.borot().add_trace(new_state.borot().position())
-            z = [new_state.borot().position()[0], new_state.borot().position()[1], new_state.borot().theta()]
+            z = new_state.borot().predicted_position()
             v = new_state.borot().speed()[0]
             w = new_state.borot().speed()[1]
-            m = z # Could be that this needs to be the filter from the previous state
-
+            m = [new_state.borot().position()[0], new_state.borot().position()[1], new_state.borot().theta()] # Could be that this needs to be the filter from the previous state
+    
             new_state.borot().filter().localization(z, v, w, m, dt)
 
             return new_state

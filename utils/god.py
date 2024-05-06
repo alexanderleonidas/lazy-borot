@@ -80,10 +80,10 @@ def build_maze(width: int, height: int):
         (wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))
 
     world.add_obstacle((wall_thickness, 150, width - 400, line_wall_thickness))
-    world.add_obstacle((wall_thickness + 400, 325, width, line_wall_thickness))
+    world.add_obstacle((wall_thickness + 400, 325, width - 400 - 2*wall_thickness, line_wall_thickness))
 
     world.add_obstacle((wall_thickness, 500, width - 400, line_wall_thickness))
-    world.add_obstacle((wall_thickness + 400, 650, width, line_wall_thickness))
+    world.add_obstacle((wall_thickness + 400, 650, width - 400 - 2*wall_thickness, line_wall_thickness))
 
     return world
 

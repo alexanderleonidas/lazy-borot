@@ -1,5 +1,10 @@
-import numpy as np 
+import random
+
+import numpy as np
 import math
+
+NOISE_LEVEL = 10
+ANGLE_NOISE_LEVEL = 0.5
 
 class KalmanFilter:
 
@@ -26,8 +31,11 @@ class KalmanFilter:
         # previous coveriance, #initialize with small values
         self.S = np.eye(3) * 0.001
 
+        noise_x = random.uniform(-NOISE_LEVEL, NOISE_LEVEL)
+        noise_y = random.uniform(-NOISE_LEVEL, NOISE_LEVEL)
+
         # get z and C from the sensors
-        self.predictiontrack = [(filter_state[0], filter_state[1])]
+        self.predictiontrack = [(filter_state[0] + noise_x, filter_state[1] + noise_y)]
 
         self.m = self.state
 
@@ -63,17 +71,21 @@ class KalmanFilter:
             self.history.append(self.ellipses())
             self.location.append((self.state[0], self.state[1]))
 
+        noise_x = random.uniform(-NOISE_LEVEL, NOISE_LEVEL)
+        noise_y = random.uniform(-NOISE_LEVEL, NOISE_LEVEL)
+        noise_z = random.uniform(-ANGLE_NOISE_LEVEL, ANGLE_NOISE_LEVEL)
+
         # new state
         if z is None:
             m = self.m
-            self.predictiontrack.append([m[0], m[1], m[2]])
+            self.predictiontrack.append([m[0] + noise_x, m[1] + noise_y, m[2] + noise_z])
 
             self.state = m
             return 0
         else:
             m = self.m + np.matmul(K, (z - np.matmul(self.C, self.m)))
             S = np.matmul(self.A - np.matmul(K, self.C), self.S)
-            self.predictiontrack.append([m[0], m[1], m[2]])
+            self.predictiontrack.append([m[0] + noise_x, m[1] + noise_y, m[2] + noise_z])
 
             self.state = m
             self.S = S

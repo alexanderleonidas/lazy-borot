@@ -28,7 +28,7 @@ class Picasso:
         self.draw_landmark(world.landmarks())
 
     def robot(self, borot: Borot) -> None:
-        # self.draw_robot_trace(borot)
+        self.draw_robot_trace(borot)
         self.draw_robot_trace_prediction(borot)
         self.draw_ellipses(borot)
 
@@ -92,8 +92,6 @@ class Picasso:
 
     def draw_ellipses(self, borot: Borot) -> None:
         for data in borot.filter().history:
-            # TODO: Keep an eye out for the radius, it might be wrong
-            #  (as of 2024/04/30 it is giving extremely small values e.g. 0.3....)
             center = (int(borot.position()[0]), int(borot.position()[1]))
 
             history = (center, data)

@@ -8,14 +8,26 @@ from models.state import State
 from models.world import World
 
 
-def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int):
-    world = World(width, height, n_obstacles, obstacle_size, wall_thickness)
+def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int, maze: bool = True):
+    if maze:
+        world = build_maze(width, height)
+        world.spawn((75, 85))
+    else:
+        world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
+        world.spawn()
+
+    return world
+
+
+def build_random(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int):
+    world = World(width, height)
 
     # Draw Walls around the map
     world.add_obstacle((wall_thickness, 0, width - (2 * wall_thickness), wall_thickness))  # Top wall
     world.add_obstacle((0, 0, wall_thickness, height))  # Left wall
     world.add_obstacle((width - wall_thickness, 0, wall_thickness, height))  # Right wall
-    world.add_obstacle((wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))  # Bottom wall
+    world.add_obstacle(
+        (wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))  # Bottom wall
 
     # List to store existing obstacles to check for overlaps
     obstacles = []
@@ -52,7 +64,26 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
 
             lim += 1
 
-    world.spawn()
+    return world
+
+
+def build_maze(width: int, height: int):
+    wall_thickness = 25
+    line_wall_thickness = 10
+
+    world = World(width, height)
+    # Draw Walls around the map
+    world.add_obstacle((wall_thickness, 0, width - (2 * wall_thickness), wall_thickness))  # Top wall
+    world.add_obstacle((0, 0, wall_thickness, height))  # Left wall
+    world.add_obstacle((width - wall_thickness, 0, wall_thickness, height))  # Right wall
+    world.add_obstacle(
+        (wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))
+
+    world.add_obstacle((wall_thickness, 150, width - 400, line_wall_thickness))
+    world.add_obstacle((wall_thickness + 400, 325, width, line_wall_thickness))
+
+    world.add_obstacle((wall_thickness, 500, width - 400, line_wall_thickness))
+    world.add_obstacle((wall_thickness + 400, 650, width, line_wall_thickness))
 
     return world
 

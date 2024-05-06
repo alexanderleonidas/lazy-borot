@@ -5,16 +5,13 @@ from utils.utils import intersects
 
 
 class World:
-    def __init__(self, width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int) -> None:
+    def __init__(self, width: int, height: int) -> None:
         self.__obstacles = []
         self.__landmarks = []
         self.__borot = Borot()
 
         self.__width = width
         self.__height = height
-        self.__n_obstacles = n_obstacles
-        self.__obstacle_size = obstacle_size
-        self.__wall_thickness = wall_thickness
 
     def obstacles(self) -> list:
         return self.__obstacles
@@ -62,7 +59,11 @@ class World:
             if x + w < self.width() and y + h < self.height():
                 self.add_landmark((x + w, y + h))
 
-    def spawn(self):
+    def spawn(self, position: tuple = None):
+        if position:
+            self.borot().birth(position)
+            return
+
         max_attempts = 100
 
         for _ in range(max_attempts):

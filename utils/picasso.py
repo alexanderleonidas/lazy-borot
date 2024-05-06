@@ -102,6 +102,144 @@ class Picasso:
         for landmark in landmarks:
             pygame.draw.circle(self.canvas(), self.landmark_color(), landmark, 2)
 
+
+    def find_beacon(screen, beacons):
+        sensor_x = player_robot.x + (ROBOT.get_width() / 2)
+        sensor_y = player_robot.y + (ROBOT.get_height() / 2)
+
+        beacons_in_proximity = []
+        collision_offset = 0
+        fi = None
+
+        for bc in range(len(beacons)):
+            dist = (math.sqrt(
+                (beacons[bc].y - sensor_y) ** 2 + (beacons[bc].x - sensor_x) ** 2)) - collision_offset
+            if dist < sensor_range:
+                pygame.draw.line(screen, (0, 255, 0), (sensor_x,
+                                                    sensor_y), (beacons[bc].x, beacons[bc].y), 3)
+                # Calc fix
+                fi = math.atan2((beacons[bc].y - sensor_y),
+                                (beacons[bc].x - sensor_x)) - player_robot.theta
+                beacons_in_proximity.append(
+                    (beacons[bc].x, beacons[bc].y, dist + collision_offset, -fi))
+                # print(beacons[bc].x, beacons[bc].y, dist+collision_offset)
+                pygame.draw.circle(screen, (25, 70, 150),
+                                (beacons[bc].x, beacons[bc].y), dist + collision_offset, 2)
+
+        if len(beacons_in_proximity) == 2:
+            x0 = beacons_in_proximity[0][0]
+            y0 = beacons_in_proximity[0][1]
+            r0 = beacons_in_proximity[0][2]
+            f0 = beacons_in_proximity[0][3]
+            x1 = beacons_in_proximity[1][0]
+            y1 = beacons_in_proximity[1][1]
+            r1 = beacons_in_proximity[1][2]
+            f1 = beacons_in_proximity[1][3]
+            # print(x0, y0, r0)
+            # print(x1, y1, r1)
+            # print("FI-1 by detection ", beacons_in_proximity[0][3])
+            # print("FI-2 by detection ", beacons_in_proximity[1][3])
+            # print("Theta ", player_robot.theta)
+
+            p1, p2, fipos1, fipos2 = circle_intersection(screen, x0, y0, r0, x1, y1,
+                                                        r1, True, (100, 10, 50), f0, f1)
+
+            # print("REAL POS", (f0, f1))
+            # print("POT POS 1", fipos1)
+            # print("POT POS 2", fipos2)
+
+            if f0 - 0.2 <= fipos1[0] <= f0 + 0.2 and f1 - 0.2 <= fipos1[1] <= f1 + 0.2:
+                # pygame.draw.circle(screen, (100, 10, 50), (p1[0], p1[1]), 5)
+                return (p1[0], p1[1], player_robot.theta)
+            else:
+                # pygame.draw.circle(screen, (100, 10, 50), (p2[0], p2[1]), 5)
+                return (p2[0], p2[1], player_robot.theta)
+
+        elif len(beacons_in_proximity) > 2:
+            x0 = beacons_in_proximity[0][0]
+            y0 = beacons_in_proximity[0][1]
+            r0 = beacons_in_proximity[0][2]
+            f0 = beacons_in_proximity[0][3]
+            x1 = beacons_in_proximity[1][0]
+            y1 = beacons_in_proximity[1][1]
+            r1 = beacons_in_proximity[1][2]
+            f1 = beacons_in_proximity[1][3]
+            x2 = beacons_in_proximity[2][0]
+            y2 = beacons_in_proximity[2][1]
+            r2 = beacons_in_proximity[2][2]
+            f2 = beacons_in_proximity[2][3]
+
+            p1, p2, fipos1, fipos2 = circle_intersection(screen, x0, y0, r0, x1, y1,
+                                                        r1, False, (255, 100, 153), f0, f1)
+            # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
+            # pygame.draw.circle(screen, (150, 150, 15), (p2[0], p2[1]), 5)
+            p3, p4, fipos3, fipos4 = circle_intersection(screen, x0, y0, r0, x2, y2,
+                                                        r2, False, (10, 210, 53), f0, f2)
+            # pygame.draw.circle(screen, (50, 150, 150), (p3[0], p3[1]), 5)
+            # pygame.draw.circle(screen, (50, 150, 150), (p4[0], p4[1]), 5)
+            p5, p6, fipos5, fipos6 = circle_intersection(screen, x1, y1, r1, x2, y2,
+                                                        r2, False, (180, 80, 80), f1, f2)
+            # pygame.draw.circle(screen, (150, 150, 150), (p5[0], p5[1]), 5)
+            # pygame.draw.circle(screen, (150, 150, 150), (p6[0], p6[1]), 5)
+
+            # print("P1, P2 ", p1[0], p1[1], p2[0], p2[1])
+            # print("P3, P4 ", p3[0], p3[1], p4[0], p4[1])
+            # print("P5, P6 ", p5[0], p5[1], p6[0], p6[1])
+
+            if p1[0] - 5 <= p3[0] <= p1[0] + 5 and p1[1] - 5 <= p3[1] <= p1[1] + 5:
+                # if (p1[0] - 3 < p5[0] < p1[0] + 3 and p1[1] - 3 < p5[1] < p1[1] + 3) or (p1[0] - 3 < p6[0] < p1[0] + 3 and p1[1] - 3 < p6[1] < p1[1] + 3):
+                # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
+                return (p1[0], p1[1], player_robot.theta)
+            elif p1[0] - 5 <= p4[0] <= p1[0] + 5 and p1[1] - 5 <= p4[1] <= p1[1] + 5:
+                # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
+                return (p1[0], p1[1], player_robot.theta)
+            else:
+                # pygame.draw.circle(screen, (150, 150, 15), (p2[0], p2[1]), 5)
+                return (p2[0], p2[1], player_robot.theta)
+
+
+    def circle_intersection(screen, x0, y0, r0, x1, y1, r1, find_fi, circle_color, fi0, fi1):
+        d = math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
+
+        if d > r0 + r1:
+            return (0, 0), (0, 0), (0, 0), (0, 0)
+        elif d < abs(r0 - r1):
+            return (0, 0), (0, 0), (0, 0), (0, 0)
+        elif d == 0 and r0 == r1:
+            return (0, 0), (0, 0), (0, 0), (0, 0)
+        else:
+            a = (r0 ** 2 - r1 ** 2 + d ** 2) / (2 * d)
+            h = math.sqrt(abs(r0 ** 2 - a ** 2))
+            x2 = x0 + a * (x1 - x0) / d
+            y2 = y0 + a * (y1 - y0) / d
+            x3 = x2 + h * (y1 - y0) / d
+            y3 = y2 - h * (x1 - x0) / d
+
+            x4 = x2 - h * (y1 - y0) / d
+            y4 = y2 + h * (x1 - x0) / d
+
+            # pygame.draw.circle(screen, circle_color, (x3, y3), 5)
+            # pygame.draw.circle(screen, circle_color, (x4, y4), 5)
+            # print(x3, y3, x4, y4)
+            # print("Fi0 ", fi0)
+            # print("Fi1 ", fi1)
+
+            fi03 = math.atan2((y0 - y3),
+                            (x0 - x3)) - player_robot.theta
+            fi13 = math.atan2((y1 - y3),
+                            (x1 - x3)) - player_robot.theta
+            fi04 = math.atan2((y0 - y4),
+                            (x0 - x4)) - player_robot.theta
+            fi14 = math.atan2((y1 - y4),
+                            (x1 - x4)) - player_robot.theta
+
+            # print("FI pot pos 1 w beacon 1 ", fi03)
+            # print("FI pot pos 1 w beacon 2 ", fi13)
+            # print("FI pot pos 2 w beacon 1", fi04)
+            # print("FI pot pos 2 w beacon 2", fi14)
+
+            return (int(x3), int(y3)), (int(x4), int(y4)), (-fi03, -fi13), (-fi04, -fi14)
+
     @staticmethod
     def landmark_color():
         return pygame.Color('black')

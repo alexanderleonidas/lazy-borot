@@ -39,6 +39,7 @@ class State:
 
         new_state.borot().update_position((x_prime, y_prime))
         new_state.borot().update_theta(theta_prime)
+        new_state.borot().set_predicted_position(new_state.borot().find_beacons())
 
         # If there are no collisions return the next state
         if not any(intersects(new_state.borot().position_with_body(), obstacle) for obstacle in self.obstacles()):

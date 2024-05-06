@@ -5,7 +5,6 @@ import pygame
 
 from models.action import Action
 from models.filter import KalmanFilter
-from utils.utils import distance_between_points, clipline
 
 CHANGE_BY = 5
 N_SENSORS = 12
@@ -32,6 +31,7 @@ class Borot:
         self.__trace = []
         self.__filter = KalmanFilter([self.position()[0], self.position()[1], self.theta()], SIGMA_MOV, SIGMA_ROT,
                                      SIGMA_SER_MOV, SIGMA_SER_ROT)
+        self.__predicted_position = (0, 0, 0)
 
     def move(self, action: Action) -> None:
         if action == Action.INCREASE_RIGHT:
@@ -59,7 +59,6 @@ class Borot:
         robot_x, robot_y = self.position()
         return robot_x, robot_y, x, y
 
-    # TODO: Change Sensor Logic to use a continuous radius (radar-like) instead of a laser-like sensor
     def compute_sensor_distances(self, obstacles: list, landmarks: list) -> None:
         current_degree = 0
         relative_increase = 360 / N_SENSORS
@@ -210,11 +209,105 @@ class Borot:
     def filter(self):
         return self.__filter
 
-    @staticmethod
-    def feature_based_measurements(m_y, m_x, x, y, s, theta, noise):
-        r_t = np.sqrt((m_x - x)**2 + (m_y - y)**2)
-        f_t = np.arctan2(m_y - y, m_x - x) - theta
-        s_t = s
+    def find_beacons(self):
+        beacons = self.get_landmark_sensors()
+        sensor_range = SENSOR_LENGTH
+        sensor_x = self.position()[0]
+        sensor_y = self.position()[1]
 
-        return np.array([r_t, f_t, s_t]) + noise
+        beacons_in_proximity = []
+        collision_offset = 0
+
+        for bc in range(len(beacons)):
+            dist = (math.sqrt(
+                (beacons[bc][1] - sensor_y) ** 2 + (beacons[bc][0] - sensor_x) ** 2)) - collision_offset
+            if dist < sensor_range:
+                # Calc fix
+                fi = math.atan2((beacons[bc][1] - sensor_y),
+                                (beacons[bc][0] - sensor_x)) - self.theta()
+                beacons_in_proximity.append(
+                    (beacons[bc][0], beacons[bc][1], dist + collision_offset, -fi))
+
+        if len(beacons_in_proximity) == 2:
+            x0 = beacons_in_proximity[0][0]
+            y0 = beacons_in_proximity[0][1]
+            r0 = beacons_in_proximity[0][2]
+            f0 = beacons_in_proximity[0][3]
+            x1 = beacons_in_proximity[1][0]
+            y1 = beacons_in_proximity[1][1]
+            r1 = beacons_in_proximity[1][2]
+            f1 = beacons_in_proximity[1][3]
+
+            p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1, r1)
+
+            if f0 - 0.2 <= fipos1[0] <= f0 + 0.2 and f1 - 0.2 <= fipos1[1] <= f1 + 0.2:
+                return (p1[0], p1[1], self.theta())
+            else:
+                return (p2[0], p2[1], self.theta())
+
+        elif len(beacons_in_proximity) > 2:
+            x0 = beacons_in_proximity[0][0]
+            y0 = beacons_in_proximity[0][1]
+            r0 = beacons_in_proximity[0][2]
+            f0 = beacons_in_proximity[0][3]
+            x1 = beacons_in_proximity[1][0]
+            y1 = beacons_in_proximity[1][1]
+            r1 = beacons_in_proximity[1][2]
+            f1 = beacons_in_proximity[1][3]
+            x2 = beacons_in_proximity[2][0]
+            y2 = beacons_in_proximity[2][1]
+            r2 = beacons_in_proximity[2][2]
+            f2 = beacons_in_proximity[2][3]
+
+            p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1, r1)
+            p3, p4, fipos3, fipos4 = self.circle_intersection(x0, y0, r0, x2, y2, r2)
+            p5, p6, fipos5, fipos6 = self.circle_intersection(x1, y1, r1, x2, y2, r2)
+
+            # print("P1, P2 ", p1[0], p1[1], p2[0], p2[1])
+            # print("P3, P4 ", p3[0], p3[1], p4[0], p4[1])
+            # print("P5, P6 ", p5[0], p5[1], p6[0], p6[1])
+
+            if p1[0] - 5 <= p3[0] <= p1[0] + 5 and p1[1] - 5 <= p3[1] <= p1[1] + 5:
+                return (p1[0], p1[1], self.theta())
+            elif p1[0] - 5 <= p4[0] <= p1[0] + 5 and p1[1] - 5 <= p4[1] <= p1[1] + 5:
+                return (p1[0], p1[1], self.theta())
+            else:
+                return (p2[0], p2[1], self.theta())
+
+    def predicted_position(self):
+        return self.__predicted_position
+
+    def set_predicted_position(self, predicted_position: tuple) -> None:
+        self.__predicted_position = predicted_position
+
+    def circle_intersection(self, x0, y0, r0, x1, y1, r1):
+        d = math.sqrt((x1 - x0) ** 2 + (y1 - y0) ** 2)
+
+        if d > r0 + r1:
+            return (0, 0), (0, 0), (0, 0), (0, 0)
+        elif d < abs(r0 - r1):
+            return (0, 0), (0, 0), (0, 0), (0, 0)
+        elif d == 0 and r0 == r1:
+            return (0, 0), (0, 0), (0, 0), (0, 0)
+        else:
+            a = (r0 ** 2 - r1 ** 2 + d ** 2) / (2 * d)
+            h = math.sqrt(abs(r0 ** 2 - a ** 2))
+            x2 = x0 + a * (x1 - x0) / d
+            y2 = y0 + a * (y1 - y0) / d
+            x3 = x2 + h * (y1 - y0) / d
+            y3 = y2 - h * (x1 - x0) / d
+
+            x4 = x2 - h * (y1 - y0) / d
+            y4 = y2 + h * (x1 - x0) / d
+
+            fi03 = math.atan2((y0 - y3),
+                              (x0 - x3)) - self.theta()
+            fi13 = math.atan2((y1 - y3),
+                              (x1 - x3)) - self.theta()
+            fi04 = math.atan2((y0 - y4),
+                              (x0 - x4)) - self.theta()
+            fi14 = math.atan2((y1 - y4),
+                              (x1 - x4)) - self.theta()
+
+            return (int(x3), int(y3)), (int(x4), int(y4)), (-fi03, -fi13), (-fi04, -fi14)
 

@@ -3,7 +3,7 @@ import math
 import pygame
 from pygame import Surface
 
-from models.borot import Borot
+from models.borot import Borot, SENSOR_LENGTH
 from models.world import World
 
 
@@ -25,7 +25,6 @@ class Picasso:
             self.wall(obstacle)
 
         self.draw_landmark(world.landmarks())
-        self.find_beacon(world.borot().get_landmark_sensors(), world.borot())
 
     def robot(self, borot: Borot) -> None:
         # self.draw_robot_trace(borot)
@@ -44,6 +43,7 @@ class Picasso:
         x = coordinates[0] + math.cos(angle) * radius
         y = coordinates[1] + math.sin(angle) * radius
         pygame.draw.line(self.canvas(), self.robot_direction_color(), coordinates, (x, y), 2)
+        self.find_beacon(borot.get_landmark_sensors(), borot)
 
     def wall(self, coordinates: tuple) -> None:
         pygame.draw.rect(self.canvas(), self.obstacle_color(), coordinates)
@@ -106,7 +106,7 @@ class Picasso:
 
     def find_beacon(self, beacons, borot: Borot):
         screen = self.canvas()
-        sensor_range = 100
+        sensor_range = SENSOR_LENGTH
         sensor_x = borot.position()[0]
         sensor_y = borot.position()[1]
 
@@ -144,7 +144,7 @@ class Picasso:
             # print("FI-2 by detection ", beacons_in_proximity[1][3])
             # print("Theta ", player_robot.theta)
 
-            p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1, r1)
+            p1, p2, fipos1, fipos2 = self.circle_intersection(borot, x0, y0, r0, x1, y1, r1)
 
             # print("REAL POS", (f0, f1))
             # print("POT POS 1", fipos1)
@@ -171,16 +171,13 @@ class Picasso:
             r2 = beacons_in_proximity[2][2]
             f2 = beacons_in_proximity[2][3]
 
-            p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1,
-                                                         r1)
+            p1, p2, fipos1, fipos2 = self.circle_intersection(borot, x0, y0, r0, x1, y1, r1)
             # pygame.draw.circle(screen, (150, 150, 15), (p1[0], p1[1]), 5)
             # pygame.draw.circle(screen, (150, 150, 15), (p2[0], p2[1]), 5)
-            p3, p4, fipos3, fipos4 = self.circle_intersection(screen, x0, y0, r0, x2, y2,
-                                                         r2)
+            p3, p4, fipos3, fipos4 = self.circle_intersection(borot, x0, y0, r0, x2, y2, r2)
             # pygame.draw.circle(screen, (50, 150, 150), (p3[0], p3[1]), 5)
             # pygame.draw.circle(screen, (50, 150, 150), (p4[0], p4[1]), 5)
-            p5, p6, fipos5, fipos6 = self.circle_intersection(screen, x1, y1, r1, x2, y2,
-                                                         r2)
+            p5, p6, fipos5, fipos6 = self.circle_intersection(borot, x1, y1, r1, x2, y2, r2)
             # pygame.draw.circle(screen, (150, 150, 150), (p5[0], p5[1]), 5)
             # pygame.draw.circle(screen, (150, 150, 150), (p6[0], p6[1]), 5)
 

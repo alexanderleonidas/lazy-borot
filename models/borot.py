@@ -10,7 +10,7 @@ from utils.utils import distance_between_points, clipline
 CHANGE_BY = 5
 N_SENSORS = 12
 
-SENSOR_LENGTH = 110
+SENSOR_LENGTH = 120
 
 SIGMA_MOV = 0.1
 SIGMA_ROT = 0.1
@@ -158,7 +158,8 @@ class Borot:
         return self.__sensors
 
     def get_landmark_sensors(self):
-        return [sensor for sensor in self.__sensors if sensor[0] == 'Landmark']
+        test = [sensor[1] for sensor in self.__sensors if sensor[0] == 'Landmark']
+        return test
 
     def get_obstacle_sensors(self):
         return [sensor for sensor in self.__sensors if sensor[0] != 'Landmark']
@@ -179,4 +180,11 @@ class Borot:
     def filter(self):
         return self.__filter
 
+    @staticmethod
+    def feature_based_measurements(m_y, m_x, x, y, s, theta, noise):
+        r_t = np.sqrt((m_x - x)**2 + (m_y - y)**2)
+        f_t = np.arctan2(m_y - y, m_x - x) - theta
+        s_t = s
+
+        return np.array([r_t, f_t, s_t]) + noise
 

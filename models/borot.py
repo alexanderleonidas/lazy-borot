@@ -10,7 +10,7 @@ from utils.utils import distance_between_points, clipline
 CHANGE_BY = 5
 N_SENSORS = 12
 
-SENSOR_LENGTH = 120
+SENSOR_LENGTH = 200
 
 SIGMA_MOV = 0.1
 SIGMA_ROT = 0.1
@@ -81,8 +81,38 @@ class Borot:
 
              # Check if the landmark is within the sensor's range
             if distance_to_landmark <= SENSOR_LENGTH:
-                # Append the landmark and its distance to the list, adjusting for the robot's radius
-                sensors.append(('Landmark', landmark, distance_to_landmark - self.radius()))
+                can_see = True
+                for obstacle in obstacles:
+                    obstacle_vec2 = pygame.Rect(obstacle)
+
+                    lm_x = landmark[0]
+                    lm_y = landmark[1]
+
+                    if landmark[0] > robot_x:
+                        lm_x -= 1
+                    else:
+                        lm_x += 1
+
+                    if landmark[1] > robot_y:
+                        lm_y -= 1
+                    else:
+                        lm_y += 1
+
+                    sensor_vec2 = pygame.math.Vector2(lm_x, lm_y)
+
+                    intersections = obstacle_vec2.clipline(robot_vec2, sensor_vec2)
+
+                    if intersects := intersections:
+                        for point in intersects:
+                            can_see = False
+                            break
+
+                        if not can_see:
+                            break
+
+                if can_see:
+                    # Append the landmark and its distance to the list, adjusting for the robot's radius
+                    sensors.append(('Landmark', landmark, distance_to_landmark - self.radius()))
 
             # if distance_to_landmark <= SENSOR_LENGTH and (closest_landmark is None or distance_to_landmark < min_landmark_distance):
             #     min_landmark_distance = distance_to_landmark

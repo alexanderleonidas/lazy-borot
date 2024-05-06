@@ -3,7 +3,7 @@ import random
 import numpy as np
 import math
 
-NOISE_LEVEL = 10
+NOISE_LEVEL = 3
 ANGLE_NOISE_LEVEL = 0.5
 
 class KalmanFilter:

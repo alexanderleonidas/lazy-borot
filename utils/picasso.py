@@ -28,10 +28,11 @@ class Picasso:
         self.draw_landmark(world.landmarks())
 
     def robot(self, borot: Borot) -> None:
-        # self.draw_robot_trace(borot)
-        self.draw_robot_trace_prediction(borot)
-        self.draw_ellipses(borot)
 
+        for i in range(len(borot.filter().history)):
+            self.draw_ellipses(borot.filter().history[i][0], borot.filter().history[i][1], borot.filter().history[i][2], borot.filter().location[i])
+        self.draw_robot_trace(borot)
+        self.draw_robot_trace_prediction(borot)
         coordinates = borot.position()
         angle = borot.theta()
         radius = borot.radius()
@@ -89,27 +90,18 @@ class Picasso:
                     start_pos = (int(start_pos[0]), int(start_pos[1]))
                     end_pos = (int(end_pos[0]), int(end_pos[1]))
                     pygame.draw.line(self.canvas(), self.predicted_trace_color(), start_pos, end_pos, 1)
-
-    def draw_ellipses(self, borot: Borot) -> None:
-        for data in borot.filter().history:
-            # TODO: Keep an eye out for the radius, it might be wrong
-            #  (as of 2024/04/30 it is giving extremely small values e.g. 0.3....)
-            center = (int(borot.position()[0]), int(borot.position()[1]))
-
-            history = (center, data)
-
-            if history not in self.__ellipses:
-                self.__ellipses.append(history)
-
-        for data in self.__ellipses:
-            center, relative_data = data
-            x_radius, y_radius, angle = relative_data
-
-            ellipse_rect = pygame.Rect(center[0] - x_radius, center[1] - y_radius, x_radius * 2, y_radius * 2)
-            rotated_ellipse = pygame.transform.rotate(pygame.Surface((2 * x_radius, 2 * y_radius), pygame.SRCALPHA),
-                                                      -angle)
-            pygame.draw.ellipse(rotated_ellipse, self.ellipses_color(), pygame.Rect(0, 0, 2 * x_radius, 2 * y_radius))
-            self.canvas().blit(rotated_ellipse, ellipse_rect.topleft)
+    
+    def draw_ellipses(self, width, height, angle, location):
+            width = width
+            height = height
+            angle = angle
+            x, y = location
+            # transparent surface
+            surface = pygame.Surface((100, 100), pygame.SRCALPHA)
+            size = (50 - width, 50 - height, width * 10, height * 10)
+            pygame.draw.ellipse(surface, (253, 203, 113), size, 2)
+            rotate = pygame.transform.rotate(surface, angle)
+            self.canvas().blit(rotate, (x - rotate.get_rect().center[0], y - rotate.get_rect().center[1]))
 
     def get_ellipses(self):
         return self.__ellipses

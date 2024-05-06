@@ -157,6 +157,12 @@ class Borot:
     def sensors(self) -> list:
         return self.__sensors
 
+    def get_landmark_sensors(self):
+        return [sensor for sensor in self.__sensors if sensor[0] == 'Landmark']
+
+    def get_obstacle_sensors(self):
+        return [sensor for sensor in self.__sensors if sensor[0] != 'Landmark']
+
     def crash(self) -> None:
         self.__v_l = 0
         self.__v_r = 0

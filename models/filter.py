@@ -20,10 +20,10 @@ class KalmanFilter:
         self.C = np.eye(3)
 
         # sensor noise, initialize with small value
-        self.Q = np.dot(np.eye(3), 1) * np.array([sigma_ser_mov, sigma_ser_mov, sigma_ser_rot])  
+        self.Q = np.dot(np.eye(3), 0.7) * np.array([sigma_ser_mov, sigma_ser_mov, sigma_ser_rot])  
 
         # process noise, initialize with small values
-        self.R = np.dot(np.eye(3), 1) * np.array([sigma_mov, sigma_mov, sigma_rot])
+        self.R = np.dot(np.eye(3), 0.7) * np.array([sigma_mov, sigma_mov, sigma_rot])
 
         # previous coveriance, #initialize with small values
         self.S = np.eye(3) * 0.001

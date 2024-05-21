@@ -39,7 +39,7 @@ class Controller:
         parent_2 = [selected[rand] for rand in np.random.randint(len(selected), size=int(self.pop_size))]
         for i in range(int(self.pop_size)):
             # Crossover
-            child = self.birth(parent_1[i], parent_2[i])
+            child = self.reproduction(parent_1[i], parent_2[i])
             children.append(child)
         return children
 

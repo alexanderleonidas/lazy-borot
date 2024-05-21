@@ -13,9 +13,16 @@ class Controller:
         self.error_range = error_range
         self.mutate = mutate
 
-    def evaluation():
+    def evaluation(self, remaining_dust):
         #fitness function
-        pass
+        if remaining_dust:
+            dust_score = (100 / remaining_dust)
+        else:
+            dust_score = 100
+        total_score = dust_score - self.wallCollisions * 0.0001
+        #print("Wall Collisions: ", self.wallCollisions)
+
+        return total_score
 
     def selection(self):
         self.population.sort(key=lambda s: s.score, reverse=True)

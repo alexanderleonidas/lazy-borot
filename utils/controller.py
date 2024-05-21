@@ -1,9 +1,10 @@
 import numpy as np
 import random
 
-from brain import Brain
+from models.brain import Brain
 
-neural_network = Brain
+neural_network = Brain.create()
+
 
 class Controller:
     def __init__(self, pop_size, select_perc, error_range, mutate) -> None:
@@ -14,7 +15,7 @@ class Controller:
         self.mutate = mutate
 
     def evaluation():
-        #fitness function
+        # fitness function
         pass
 
     def selection(self):
@@ -22,14 +23,14 @@ class Controller:
         selected = self.population[:int(self.select_perc * (len(self.population)))]
         return selected
 
-    def reproduction(self, parent_1,parent_2):
+    def reproduction(self, parent_1, parent_2):
         weights = []
         for i in range(len(parent_1.dna)):
             # for every layer average
             weights.append(np.mean(np.array([parent_1.dna[i], parent_2.dna[i]]), axis=0))
         child = Individual(neural_network(weights=weights))
         return child
-    
+
     def crossover(self, selected):
         children = []
         # create couples that will give birth
@@ -41,30 +42,30 @@ class Controller:
             child = self.birth(parent_1[i], parent_2[i])
             children.append(child)
         return children
-    
+
     def mutation(self, children):
         for i in range(self.pop_size):
             if random.random() < self.mutate:
                 weights = []
-                #print("before mutation: ", children[i].dna)
+                # print("before mutation: ", children[i].dna)
                 for j in range(len(children[i].dna)):
-                    bias = np.random.uniform(-1,1, [children[i].dna[j].shape[0], children[i].dna[j].shape[1]])
+                    bias = np.random.uniform(-1, 1, [children[i].dna[j].shape[0], children[i].dna[j].shape[1]])
                     bias = np.where(abs(bias) > 0.05, 0, bias)
                     weights.append(children[i].dna[j] + bias)
-                    #print("bias term", bias)
+                    # print("bias term", bias)
                 children[i].dna = weights
                 print("after mutation: ", children[i].dna)
         return children
-    
+
     def run(self):
-        #life cycle
+        # life cycle
 
         selected = self.selection()
-        #print("dna of first: ", selected[0].dna)
+        # print("dna of first: ", selected[0].dna)
         children = self.crossover(selected)
-        #print("dna of first after cross over: ", children[0].dna)
+        # print("dna of first after cross over: ", children[0].dna)
         children = self.mutation(children)
-        #print("dna of first after mutation: ", children[0].dna)
+        # print("dna of first after mutation: ", children[0].dna)
 
         # keep the best the same
         children[0:2] = selected[0:2]
@@ -76,7 +77,7 @@ class Controller:
 class Individual():
     def __init__(self, NN):
         self.NN = NN
-        self.dna = NN.weights # float number
+        self.dna = NN.weights  # float number
         self.score = 0
 
     def update_score(self, score):

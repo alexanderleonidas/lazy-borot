@@ -9,6 +9,8 @@ from models.world import World
 from utils.utils import intersects
 
 
+random.seed(42)
+
 def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int, maze: bool = True):
     if maze:
         world = build_maze(width, height)
@@ -17,7 +19,7 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
         world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
         world.spawn()
     
-    make_dusty(width, height, num_particles=500, dust_radius=3, world=world)
+    make_dusty(width, height, num_particles=1000, dust_radius=10, world=world)
 
     return world
 

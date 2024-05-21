@@ -8,6 +8,7 @@ class World:
     def __init__(self, width: int, height: int) -> None:
         self.__obstacles = []
         self.__landmarks = []
+        self.__dust = []
         self.__borot = Borot()
 
         self.__width = width
@@ -21,6 +22,9 @@ class World:
 
     def landmarks(self) -> list:
         return self.__landmarks
+    
+    def dust(self) -> list:
+        return self.__dust
 
     def add_landmark(self, landmark: tuple) -> None:
         if landmark not in self.__landmarks:
@@ -36,6 +40,10 @@ class World:
     def add_obstacle(self, obstacle: tuple) -> None:
         if obstacle not in self.__obstacles:
             self.__obstacles.append(obstacle)
+    
+    def add_dust(self, dust: tuple):
+        if dust not in self.__dust:
+            self.__dust.append(dust)
 
     def width(self) -> int:
         return self.__width

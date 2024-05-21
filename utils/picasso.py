@@ -25,6 +25,7 @@ class Picasso:
         for obstacle in world.obstacles():
             self.wall(obstacle)
 
+        self.draw_dust(world.dust())
         self.draw_landmark(world.landmarks())
 
     def robot(self, borot: Borot) -> None:
@@ -110,6 +111,10 @@ class Picasso:
         for landmark in landmarks:
             pygame.draw.circle(self.canvas(), self.landmark_color(), landmark, 2)
 
+    def draw_dust(self, dust:list) -> None:
+        for dust_particle in dust:
+            pygame.draw.rect(self.canvas(), self.dust_color(), dust_particle)
+
     def draw_beacons(self, borot):
         screen = self.canvas()
         sensor_range = SENSOR_LENGTH
@@ -183,3 +188,7 @@ class Picasso:
     @staticmethod
     def sensor_endpoint_color() -> pygame.Color:
         return pygame.Color('blue')
+    
+    @staticmethod
+    def dust_color() -> pygame.Color:
+        return pygame.Color('grey68')

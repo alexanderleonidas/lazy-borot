@@ -6,6 +6,7 @@ import pygame.event
 from models.action import Action
 from models.state import State
 from models.world import World
+from utils.utils import intersects
 
 
 def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int, maze: bool = True):
@@ -15,6 +16,8 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
     else:
         world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
         world.spawn()
+    
+    make_dusty(width, height, num_particles=500, dust_radius=3, world=world)
 
     return world
 
@@ -26,8 +29,7 @@ def build_random(width: int, height: int, n_obstacles: int, obstacle_size: tuple
     world.add_obstacle((wall_thickness, 0, width - (2 * wall_thickness), wall_thickness))  # Top wall
     world.add_obstacle((0, 0, wall_thickness, height))  # Left wall
     world.add_obstacle((width - wall_thickness, 0, wall_thickness, height))  # Right wall
-    world.add_obstacle(
-        (wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))  # Bottom wall
+    world.add_obstacle((wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))  # Bottom wall
 
     # List to store existing obstacles to check for overlaps
     obstacles = []
@@ -87,6 +89,18 @@ def build_maze(width: int, height: int):
     world.add_obstacle((wall_thickness + 400, 650, width - 400 - 2*wall_thickness, line_wall_thickness))
 
     return world
+
+
+def make_dusty(width: int, height: int, num_particles: int, dust_radius: int, world: World):
+    iteration = 0
+    while iteration < num_particles:
+        x = random.randint(0, width - dust_radius)
+        y = random.randint(0, height - dust_radius)
+        dust = (x, y, dust_radius*2, dust_radius*2)
+
+        if not any(intersects(dust, obstacle) for obstacle in world.obstacles()):
+            world.add_dust(dust)
+        iteration += 1
 
 
 def listening(state: State, dt) -> State:

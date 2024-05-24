@@ -19,7 +19,7 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
         world.spawn((75, 85))
     elif maze == 2:
         world = Hallway().build()
-        world.spawn((20, 20))
+        world.spawn((100, 100))
     else:
         world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
         world.spawn()

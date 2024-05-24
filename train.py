@@ -9,9 +9,9 @@ def train():
 
     population_size = 100
     selection_percentage = .1
-    error_range = .3
+    error_range = .5
     mutate_percentage = .1
-    time_steps = 100
+    time_steps = 50
     generations = 100
 
     controller = Controller(population_size, selection_percentage, error_range, mutate_percentage,

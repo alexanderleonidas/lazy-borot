@@ -1,11 +1,15 @@
 import numpy as np
 import random
+
+import pygame
 import torch
 from models.brain import Brain
 from models.state import State
 from models.world import World
 from models.action import Action
 from utils import god
+from utils.picasso import Picasso
+
 SCREEN_SIZE = 400
 SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE, SCREEN_SIZE
 OBSTACLE_SIZE = (40, 40)
@@ -23,19 +27,31 @@ class Controller:
         self.time_steps = time_steps
 
     def evaluation(self):
-        for individual in self.population:
-            individual.update_score(self.compute_fitness(individual))
+        for idx, individual in enumerate(self.population):
+            individual.update_score(self.compute_fitness(individual, idx))
 
-    def compute_fitness(self, individual):
+    def compute_fitness(self, individual, idx):
+        pygame.init()
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        pygame.display.set_caption(
+            f"Individidual: {idx} and Score: {individual.score} ")
+        surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 2)
         world.find_landmarks()
+
+        font = pygame.font.SysFont('Comic Sans MS', 10)
+        picasso = Picasso(surface, font)
+
+        picasso.draw(world)
+
         state = State(0, world)
         state.next(Action.NOTHING, 1E-3)
 
+        clock = pygame.time.Clock()
+        dt = 0
+
         total_reward = 0
         h = individual.NN.init_hidden(1)
-
-        dt = 0
 
         for _ in range(self.time_steps):
             inputs = self.get_inputs(state)
@@ -47,6 +63,16 @@ class Controller:
             state = state.next(action, dt)  # assuming dt = 0.1
             reward = self.get_reward(state)
             total_reward += reward
+
+            screen.blit(picasso.canvas(), (0, 0))
+            picasso.draw(world)
+            picasso.robot_data(state.borot())
+            picasso.robot(state.borot())
+            pygame.display.flip()
+
+            dt = clock.tick(60) / 500  # Limit to 60 FPS
+
+        pygame.quit()
 
         return total_reward
 
@@ -67,7 +93,7 @@ class Controller:
         landmarks = state.landmarks()
         borot_pos = borot.position()
         if not landmarks:
-            return 0  # no landmarks, give negative reward
+            return 1  # no landmarks, give negative reward
         closest_landmark = min(landmarks, key=lambda lm: np.hypot(lm[0] - borot_pos[0], lm[1] - borot_pos[1]))
         distance = np.hypot(closest_landmark[0] - borot_pos[0], closest_landmark[1] - borot_pos[1])
         return -distance  # closer to landmark gives higher reward (less negative)

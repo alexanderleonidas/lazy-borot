@@ -88,6 +88,7 @@ class Controller:
         return inputs
 
     def get_reward(self, state):
+        # TODO: Maybe give reward based on picked-up dust + distance to landmark + time alive + not constantly spinning in circles + not hitting obstacles
         # Sample reward function based on the distance to the closest landmark
         borot = state.borot()
         landmarks = state.landmarks()

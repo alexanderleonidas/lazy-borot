@@ -33,6 +33,8 @@ class Borot:
                                      SIGMA_SER_MOV, SIGMA_SER_ROT)
         self.__predicted_position = (0, 0, 0)
 
+        self.init_sensors()
+
     def move(self, action: Action) -> None:
         if action == Action.INCREASE_RIGHT:
             self.__v_r = min(self.__v_r + CHANGE_BY, self.__max_forward_speed)
@@ -58,6 +60,15 @@ class Borot:
         x, y = self.get_sensor_endpoint(degree)
         robot_x, robot_y = self.position()
         return robot_x, robot_y, x, y
+
+    def init_sensors(self):
+        sensors = []
+
+        for degree in range(0, 360, 30):
+            x, y = self.get_sensor_endpoint(degree)
+            sensors.append((degree, (x, y), SENSOR_LENGTH))
+
+        self.__sensors = sensors
 
     def compute_sensor_distances(self, obstacles: list, landmarks: list) -> None:
         current_degree = 0

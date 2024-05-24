@@ -3,6 +3,8 @@ from typing import Optional
 
 import pygame.event
 
+from maps.hallway import Hallway
+from maps.maze import Maze
 from models.action import Action
 from models.state import State
 from models.world import World
@@ -11,10 +13,13 @@ from utils.utils import intersects
 
 random.seed(42)
 
-def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int, maze: bool = True):
-    if maze:
-        world = build_maze(width, height)
+def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_thickness: int, maze: int = 1):
+    if maze == 1:
+        world = Maze().build()
         world.spawn((75, 85))
+    elif maze == 2:
+        world = Hallway().build()
+        world.spawn((20, 20))
     else:
         world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
         world.spawn()
@@ -67,28 +72,6 @@ def build_random(width: int, height: int, n_obstacles: int, obstacle_size: tuple
                 break
 
             lim += 1
-
-    return world
-
-
-def build_maze(width: int, height: int):
-    wall_thickness = 25
-    line_wall_thickness = 10
-
-    world = World(width, height)
-    # Draw Walls around the map
-    world.add_obstacle((wall_thickness, 0, width - (2 * wall_thickness), wall_thickness))  # Top wall
-    world.add_obstacle((0, 0, wall_thickness, height))  # Left wall
-    world.add_obstacle((width - wall_thickness, 0, wall_thickness, height))  # Right wall
-    world.add_obstacle(
-        (wall_thickness, height - wall_thickness, width - (2 * wall_thickness), wall_thickness))
-
-    world.add_obstacle((wall_thickness, 150, width - 400, line_wall_thickness))
-    world.add_obstacle((wall_thickness + 800, 150, width - 800 - 2*wall_thickness, line_wall_thickness))
-    world.add_obstacle((wall_thickness + 400, 325, width - 400 - 2*wall_thickness, line_wall_thickness))
-
-    world.add_obstacle((wall_thickness, 500, width - 400, line_wall_thickness))
-    world.add_obstacle((wall_thickness + 400, 650, width - 400 - 2*wall_thickness, line_wall_thickness))
 
     return world
 

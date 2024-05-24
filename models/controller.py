@@ -1,83 +1,129 @@
 import numpy as np
 import random
-
+import torch
 from models.brain import Brain
-
-neural_network = Brain.create()
-
+from models.state import State
+from models.world import World
+from models.action import Action
+from utils import god
+SCREEN_SIZE = 400
+SCREEN_WIDTH, SCREEN_HEIGHT = SCREEN_SIZE, SCREEN_SIZE
+OBSTACLE_SIZE = (40, 40)
+N_OBSTACLES = 45
+WALL_THICKNESS = 15
 
 class Controller:
-    def __init__(self, pop_size, select_perc, error_range, mutate) -> None:
-        self.population = [Individual(neural_network()) for _ in range(pop_size)]
+    def __init__(self, pop_size, select_perc, error_range, mutate, time_steps) -> None:
+        self.population = [Individual(Brain.create()) for _ in range(pop_size)]
         self.pop_size = pop_size
         self.select_perc = select_perc
         self.error_range = error_range
         self.mutate = mutate
+        self.world_size = SCREEN_SIZE
+        self.time_steps = time_steps
 
-    def evaluation():
-        #fitness function
-        pass
+    def evaluation(self):
+        for individual in self.population:
+            individual.update_score(self.compute_fitness(individual))
+
+    def compute_fitness(self, individual):
+        world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 2)
+        world.find_landmarks()
+        state = State(0, world)
+        state.next(Action.NOTHING, 1E-3)
+
+        total_reward = 0
+        h = individual.NN.init_hidden(1)
+
+        dt = 0
+
+        for _ in range(self.time_steps):
+            inputs = self.get_inputs(state)
+            inputs = torch.tensor(inputs, dtype=torch.float).unsqueeze(0).unsqueeze(0)  # batch_size=1, seq_len=1
+            outputs, h = individual.NN(inputs, h)
+            action_index = torch.argmax(outputs).item()
+            action = list(Action)[action_index]
+            dt += .1
+            state = state.next(action, dt)  # assuming dt = 0.1
+            reward = self.get_reward(state)
+            total_reward += reward
+
+        return total_reward
+
+    def get_inputs(self, state):
+        borot = state.borot()
+        sensors = borot.sensors()
+        velocity = borot.speed()
+        theta = borot.theta()
+        inputs = [sensor[2] for sensor in borot.get_obstacle_sensors()]  # distance readings
+        inputs.extend(velocity)
+        inputs.append(theta)
+        inputs.append(1)  # bias
+        return inputs
+
+    def get_reward(self, state):
+        # Sample reward function based on the distance to the closest landmark
+        borot = state.borot()
+        landmarks = state.landmarks()
+        borot_pos = borot.position()
+        if not landmarks:
+            return 0  # no landmarks, give negative reward
+        closest_landmark = min(landmarks, key=lambda lm: np.hypot(lm[0] - borot_pos[0], lm[1] - borot_pos[1]))
+        distance = np.hypot(closest_landmark[0] - borot_pos[0], closest_landmark[1] - borot_pos[1])
+        return -distance  # closer to landmark gives higher reward (less negative)
 
     def selection(self):
         self.population.sort(key=lambda s: s.score, reverse=True)
-        selected = self.population[:int(self.select_perc * (len(self.population)))]
+        selected = self.population[:int(self.select_perc * len(self.population))]
         return selected
 
     def reproduction(self, parent_1, parent_2):
-        weights = []
-        for i in range(len(parent_1.dna)):
-            # for every layer average
-            weights.append(np.mean(np.array([parent_1.dna[i], parent_2.dna[i]]), axis=0))
-        child = Individual(neural_network(weights=weights))
+        child_weights = []
+        for w1, w2 in zip(parent_1.dna, parent_2.dna):
+            new_weight = (w1 + w2) / 2
+            child_weights.append(new_weight)
+        child = Individual(Brain.create())
+        child.NN.load_state_dict(parent_1.NN.state_dict())
+        for param, new_weight in zip(child.NN.parameters(), child_weights):
+            param.data.copy_(new_weight)
         return child
 
     def crossover(self, selected):
+        if not selected:
+            raise ValueError("Selected list is empty. Cannot perform crossover.")
+
         children = []
-        # create couples that will give birth
-        parent_1 = [selected[rand] for rand in
-                    np.random.randint(len(selected), size=int(self.pop_size))]
-        parent_2 = [selected[rand] for rand in np.random.randint(len(selected), size=int(self.pop_size))]
-        for i in range(int(self.pop_size)):
-            # Crossover
-            child = self.reproduction(parent_1[i], parent_2[i])
+        parent_1 = [selected[rand] for rand in np.random.randint(len(selected), size=self.pop_size)]
+        parent_2 = [selected[rand] for rand in np.random.randint(len(selected), size=self.pop_size)]
+        for p1, p2 in zip(parent_1, parent_2):
+            child = self.reproduction(p1, p2)
             children.append(child)
         return children
 
     def mutation(self, children):
-        for i in range(self.pop_size):
+        for child in children:
             if random.random() < self.mutate:
-                weights = []
-                # print("before mutation: ", children[i].dna)
-                for j in range(len(children[i].dna)):
-                    bias = np.random.uniform(-1, 1, [children[i].dna[j].shape[0], children[i].dna[j].shape[1]])
-                    bias = np.where(abs(bias) > 0.05, 0, bias)
-                    weights.append(children[i].dna[j] + bias)
-                    # print("bias term", bias)
-                children[i].dna = weights
-                print("after mutation: ", children[i].dna)
+                for param in child.NN.parameters():
+                    noise = torch.randn(param.size()) * self.error_range
+                    param.data.add_(noise)
         return children
 
-    def run(self):
-        # life cycle
-
+    def generate_new_population(self):
+        # Life cycle
+        self.evaluation()
         selected = self.selection()
-        # print("dna of first: ", selected[0].dna)
         children = self.crossover(selected)
-        # print("dna of first after cross over: ", children[0].dna)
         children = self.mutation(children)
-        # print("dna of first after mutation: ", children[0].dna)
-
-        # keep the best the same
-        children[0:2] = selected[0:2]
+        # Preserve best individuals
+        children[:2] = selected[:2]
         self.population = children
-
         return self.population
 
 
-class Individual():
+class Individual:
     def __init__(self, NN):
         self.NN = NN
-        self.dna = NN.weights  # float number
+        self.dna = [param.data.clone() for param in NN.parameters()]
         self.score = 0
 
     def update_score(self, score):
@@ -87,4 +133,4 @@ class Individual():
         return self.__str__()
 
     def __str__(self):
-        return 'Robot score: ' + str(self.score)
+        return f'Robot score: {self.score}'

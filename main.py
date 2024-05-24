@@ -4,7 +4,7 @@ from models.state import State
 from utils import god
 from utils.picasso import Picasso
 
-SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 800
+SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 1000
 OBSTACLE_SIZE = (40, 40)
 N_OBSTACLES = 45
 WALL_THICKNESS = 15
@@ -17,7 +17,7 @@ def run():
         "Left velocity: 'w' for +, 's' for -. Right velocity: 'o' for +, 'k' for -. Space for stop")
     surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
 
-    world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, True)
+    world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 1)
     world.find_landmarks()
     font = pygame.font.SysFont('Comic Sans MS', 10)
     picasso = Picasso(surface, font)

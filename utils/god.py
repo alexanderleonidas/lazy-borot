@@ -8,8 +8,7 @@ from maps.maze import Maze
 from models.action import Action
 from models.state import State
 from models.world import World
-from utils.utils import intersects
-
+from utils.utils import make_dusty
 
 random.seed(42)
 
@@ -22,9 +21,8 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
         world.spawn((100, 100))
     else:
         world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
+        make_dusty(width, height, num_particles=1000, dust_radius=10, world=world)
         world.spawn()
-    
-    make_dusty(width, height, num_particles=1000, dust_radius=10, world=world)
 
     return world
 
@@ -74,18 +72,6 @@ def build_random(width: int, height: int, n_obstacles: int, obstacle_size: tuple
             lim += 1
 
     return world
-
-
-def make_dusty(width: int, height: int, num_particles: int, dust_radius: int, world: World):
-    iteration = 0
-    while iteration < num_particles:
-        x = random.randint(0, width - dust_radius)
-        y = random.randint(0, height - dust_radius)
-        dust = (x, y, dust_radius*2, dust_radius*2)
-
-        if not any(intersects(dust, obstacle) for obstacle in world.obstacles()):
-            world.add_dust(dust)
-        iteration += 1
 
 
 def listening(state: State, dt) -> State:

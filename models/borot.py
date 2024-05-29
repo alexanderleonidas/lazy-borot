@@ -55,7 +55,7 @@ class Borot:
         self.__v_r = max(self.__v_r, 0)
 
         # Debugging output
-        print(f'Action: {action}, Left Wheel Speed: {self.__v_l}, Right Wheel Speed: {self.__v_r}')
+        # print(f'Action: {action}, Left Wheel Speed: {self.__v_l}, Right Wheel Speed: {self.__v_r}')
 
 
     def get_sensor_endpoint(self, degree: int) -> tuple:

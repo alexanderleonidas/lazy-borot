@@ -1,3 +1,4 @@
+import random
 from abc import ABC
 
 from models.world import World
@@ -20,3 +21,6 @@ class Map(ABC):
 
     def world(self) -> World:
         return self.__world
+
+    def dust(self) -> World:
+        pass

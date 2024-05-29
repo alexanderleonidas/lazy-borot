@@ -2,6 +2,8 @@ import numpy as np
 import random
 import pygame
 import torch
+from tqdm.auto import tqdm
+
 from models.brain import Brain
 from models.state import State
 from models.world import World
@@ -58,7 +60,10 @@ class Controller:
         dt = 0
         total_reward = 0
 
-        for _ in range(self.time_steps):
+        current_stap = 1
+
+        for step in tqdm(range(self.time_steps), desc=f"Training Step {current_stap}", leave=False):
+            current_stap += 1
             sensor_inputs = self.get_inputs(state)
             motor_output, hidden_layer_output = individual.NN.runNN(sensor_inputs)
             action_index = self.get_valid_action_index(motor_output)

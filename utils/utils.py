@@ -1,4 +1,5 @@
 import math
+import random
 from typing import Optional
 
 
@@ -7,6 +8,7 @@ def intersects(item: tuple, other: tuple) -> bool:
     x2, y2, w2, h2 = other
 
     return x1 < x2 + w2 and x1 + w1 > x2 and y1 < y2 + h2 and y1 + h1 > y2
+
 
 def intersects_and_closest_point(item: tuple, other: tuple) -> Optional[tuple]:
     x1, y1, w1, h1 = item
@@ -144,3 +146,15 @@ def is_point_on_line_segment(point, start_pos, end_pos, epsilon=0.01):
     if dotproduct > squaredlength:
         return False
     return True
+
+
+def make_dusty(width: int, height: int, num_particles: int, dust_radius: int, world, random_state=42):
+    random.seed(random_state)
+    iteration = 0
+    while iteration < num_particles:
+        x = random.randint(0, width - dust_radius)
+        y = random.randint(0, height - dust_radius)
+        dust = (x, y, dust_radius * 2, dust_radius * 2)
+        if not any(intersects(dust, obstacle) for obstacle in world.obstacles()):
+            world.add_dust(dust)
+        iteration += 1

@@ -35,13 +35,13 @@ class Controller:
         self.time_steps = time_steps
         self.immigration_rate = 0.1  # Percentage of new random individuals each generation
 
-    def evaluation(self, epoch):
+    def evaluation(self, epoch, robot_id):
         for individual in self.population:
-            individual.update_score(self.compute_fitness(individual, epoch))
+            individual.update_score(self.compute_fitness(individual, epoch, robot_id))
 
-    def compute_fitness(self, individual, epoch):
+    def compute_fitness(self, individual, epoch,robot_id):
         pygame.init()
-        pygame.display.set_caption(f"Epoch: {epoch + 1}, Individual score: {individual.score}")
+        pygame.display.set_caption(f"Epoch: {epoch + 1}, Robot ID {robot_id +1}")
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
         surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 2)
@@ -176,9 +176,9 @@ class Controller:
         immigrants = [Individual(Brain()) for _ in range(num_immigrants)]
         return population + immigrants
 
-    def generate_new_population(self, epoch):
+    def generate_new_population(self, epoch,robot_id):
         # Life cycle
-        self.evaluation(epoch)
+        self.evaluation(epoch, robot_id)
         selected = self.tournament_selection()
         children = self.random_crossover(selected)
         children = self.mutation(children)

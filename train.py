@@ -60,7 +60,9 @@ def train():
     generation_indices = list(range(generations))
 
     for generation in tqdm(range(generations), desc="Epoch", leave=True):
-        controller.generate_new_population(generation)
+        for robot_id, individual in enumerate(controller.population):
+            individual.update_score(controller.compute_fitness(individual, generation, robot_id))
+        controller.generate_new_population(generation, robot_id)
         logging.info(f'Generation: {generation}')
 
         avg_fitness = np.mean([ind.score for ind in controller.population])
@@ -92,3 +94,8 @@ def save_plots(avg_fitness, best_fitness, generations, save_dir):
 
 if __name__ == '__main__':
     train()
+
+
+
+
+

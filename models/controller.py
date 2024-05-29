@@ -33,14 +33,14 @@ class Controller:
         self.time_steps = time_steps
         self.immigration_rate = 0.1  # Percentage of new random individuals each generation
 
-    def evaluation(self):
-        for idx, individual in enumerate(self.population):
-            individual.update_score(self.compute_fitness(individual, idx))
+    def evaluation(self, epoch):
+        for individual in self.population:
+            individual.update_score(self.compute_fitness(individual, epoch))
 
-    def compute_fitness(self, individual, idx):
+    def compute_fitness(self, individual, epoch):
         pygame.init()
+        pygame.display.set_caption(f"Epoch: {epoch + 1}, Individual score: {individual.score}")
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-        pygame.display.set_caption(f"Individual: {idx} and Score: {individual.score}")
         surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 2)
         world.find_landmarks()
@@ -49,7 +49,7 @@ class Controller:
         picasso.draw(world)
 
         # Ensure dust is tracked
-        dust_particles = world.dust()  # Assuming `world.dust()` provides the dust particles
+        dust_particles = world.dust()
         picasso.draw_dust(dust_particles)
 
         state = State(0, world)
@@ -171,9 +171,9 @@ class Controller:
         immigrants = [Individual(Brain()) for _ in range(num_immigrants)]
         return population + immigrants
 
-    def generate_new_population(self):
+    def generate_new_population(self, epoch):
         # Life cycle
-        self.evaluation()
+        self.evaluation(epoch)
         selected = self.tournament_selection()
         children = self.random_crossover(selected)
         children = self.mutation(children)

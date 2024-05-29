@@ -46,7 +46,7 @@ def train():
         test_network_output_range(individual)
 
     for generation in tqdm(range(generations)):
-        controller.generate_new_population()
+        controller.generate_new_population(generation)
         logging.info(f'Generation: {generation}')
 
     logging.info('Finished Training...')

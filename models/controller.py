@@ -25,6 +25,10 @@ class Controller:
         self.mutate = mutate
         self.world_size = SCREEN_SIZE
         self.time_steps = time_steps
+        if torch.backends.mps.is_available():
+            self.device = torch.device("mps") 
+        else:
+            self.device = torch.device("cpu")
 
     def evaluation(self):
         for idx, individual in enumerate(self.population):
@@ -55,7 +59,7 @@ class Controller:
 
         for _ in range(self.time_steps):
             inputs = self.get_inputs(state)
-            inputs = torch.tensor(inputs, dtype=torch.float).unsqueeze(0).unsqueeze(0)  # batch_size=1, seq_len=1
+            inputs = torch.tensor(inputs, dtype=torch.float, device=self.device).unsqueeze(0).unsqueeze(0)  # batch_size=1, seq_len=1
             outputs, h = individual.NN(inputs, h)
             action_index = torch.argmax(outputs).item()
             action = list(Action)[action_index]
@@ -87,17 +91,28 @@ class Controller:
         inputs.append(1)  # bias
         return inputs
 
-    def get_reward(self, state):
-        # TODO: Maybe give reward based on picked-up dust + distance to landmark + time alive + not constantly spinning in circles + not hitting obstacles
+    def get_reward(self, state: State):
+        # TODO: Maybe add to funcationality to account for time alive + not constantly spinning in circles + not hitting obstacles
         # Sample reward function based on the distance to the closest landmark
         borot = state.borot()
-        landmarks = state.landmarks()
-        borot_pos = borot.position()
+        landmarks = [lm[2] for lm in borot.get_landmark_sensors()]
+        # borot_pos = borot.position()
+        dust, cleaned_dust = state.dust(), state.cleaned_dust()
+
+        dust_reward = len(dust)/(cleaned_dust + 1)
+
         if not landmarks:
-            return 1  # no landmarks, give negative reward
-        closest_landmark = min(landmarks, key=lambda lm: np.hypot(lm[0] - borot_pos[0], lm[1] - borot_pos[1]))
-        distance = np.hypot(closest_landmark[0] - borot_pos[0], closest_landmark[1] - borot_pos[1])
-        return -distance  # closer to landmark gives higher reward (less negative)
+             distance_reward = -1 # no landmarks, give negative reward
+        else:
+            # closest_landmark = min(landmarks, key=lambda lm: np.hypot(lm[0] - borot_pos[0], lm[1] - borot_pos[1]))
+            # distance = np.hypot(closest_landmark[0] - borot_pos[0], closest_landmark[1] - borot_pos[1])
+            # Invert distance to get a higher reward for closer distances
+            distance_reward = 1 / (min(landmarks) + 1)  # Adding 1 to avoid division by zero
+
+        # Combine the rewards
+        reward = distance_reward + dust_reward
+
+        return reward
 
     def selection(self):
         self.population.sort(key=lambda s: s.score, reverse=True)
@@ -145,7 +160,6 @@ class Controller:
         children[:2] = selected[:2]
         self.population = children
         return self.population
-
 
 class Individual:
     def __init__(self, NN):

@@ -7,9 +7,13 @@ class Brain(nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
         super(Brain, self).__init__()
         self.hidden_size = hidden_size
-        self.rnn = nn.RNN(input_size, hidden_size, batch_first=True)
-        self.fc1 = nn.Linear(hidden_size, hidden_size)
-        self.fc2 = nn.Linear(hidden_size, output_size)
+        if torch.backends.mps.is_available():
+            self.device = torch.device("mps") 
+        else:
+            self.device = torch.device("cpu") 
+        self.rnn = nn.RNN(input_size, hidden_size, batch_first=True, device=self.device)
+        self.fc1 = nn.Linear(hidden_size, hidden_size, device=self.device)
+        self.fc2 = nn.Linear(hidden_size, output_size, device=self.device)
 
     def forward(self, x, h):
         out, h = self.rnn(x, h)
@@ -18,7 +22,7 @@ class Brain(nn.Module):
         return out, h
 
     def init_hidden(self, batch_size):
-        return torch.zeros(1, batch_size, self.hidden_size)
+        return torch.zeros(1, batch_size, self.hidden_size, device=self.device)
 
     @staticmethod
     def create():

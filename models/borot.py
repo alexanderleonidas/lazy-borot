@@ -21,8 +21,8 @@ class Borot:
     def __init__(self):
         self.__position = (0, 0)
         self.__radius = 10
-        self.__max_forward_speed = 40
-        self.__max_backwards_speed = -40
+        self.__max_forward_speed = 20
+        self.__max_backwards_speed = -20
         self.__theta = 0
         self.__v_l = 0
         self.__v_r = 0
@@ -49,6 +49,14 @@ class Borot:
             self.__v_r = 0
         elif action == Action.NOTHING:
             pass
+        
+        # Ensure wheel speeds do not go negative
+        self.__v_l = max(self.__v_l, 0)
+        self.__v_r = max(self.__v_r, 0)
+
+        # Debugging output
+        print(f'Action: {action}, Left Wheel Speed: {self.__v_l}, Right Wheel Speed: {self.__v_r}')
+
 
     def get_sensor_endpoint(self, degree: int) -> tuple:
         robot_x, robot_y = self.position()
@@ -124,14 +132,6 @@ class Borot:
                     # Append the landmark and its distance to the list, adjusting for the robot's radius
                     sensors.append(('Landmark', landmark, distance_to_landmark - self.radius()))
 
-            # if distance_to_landmark <= SENSOR_LENGTH and (closest_landmark is None or distance_to_landmark < min_landmark_distance):
-            #     min_landmark_distance = distance_to_landmark
-            #     closest_landmark = landmark
-
-        # Add the closest landmark to sensors list if it exists
-        # if closest_landmark:
-        #     sensors.append(('Landmark', closest_landmark, min_landmark_distance - self.radius()))
-
         for _ in range(N_SENSORS):
             x, y = self.get_sensor_endpoint(current_degree)
 
@@ -143,12 +143,9 @@ class Borot:
                 sensor_vec2 = pygame.math.Vector2(x, y)
 
                 intersections = obstacle_vec2.clipline(robot_vec2, sensor_vec2)
-                # intersections = clipline(obstacle, (robot_x, robot_y), (x, y))
-
                 if intersects := intersections:
                     for point in intersects:
                         intersection_point = pygame.math.Vector2(point)
-                        # distance = distance_between_points((x, y), point)
                         distance = (robot_vec2 - intersection_point).length()
 
                         if min_distance is None or distance < min_distance:
@@ -198,8 +195,7 @@ class Borot:
         return self.__sensors
 
     def get_landmark_sensors(self):
-        test = [sensor[1] for sensor in self.__sensors if sensor[0] == 'Landmark']
-        return test
+        return [sensor[1] for sensor in self.__sensors if sensor[0] == 'Landmark']
 
     def get_obstacle_sensors(self):
         return [sensor for sensor in self.__sensors if sensor[0] != 'Landmark']
@@ -233,7 +229,6 @@ class Borot:
             dist = (math.sqrt(
                 (beacons[bc][1] - sensor_y) ** 2 + (beacons[bc][0] - sensor_x) ** 2)) - collision_offset
             if dist < sensor_range:
-                # Calc fix
                 fi = math.atan2((beacons[bc][1] - sensor_y),
                                 (beacons[bc][0] - sensor_x)) - self.theta()
                 beacons_in_proximity.append(
@@ -273,10 +268,6 @@ class Borot:
             p1, p2, fipos1, fipos2 = self.circle_intersection(x0, y0, r0, x1, y1, r1)
             p3, p4, fipos3, fipos4 = self.circle_intersection(x0, y0, r0, x2, y2, r2)
             p5, p6, fipos5, fipos6 = self.circle_intersection(x1, y1, r1, x2, y2, r2)
-
-            # print("P1, P2 ", p1[0], p1[1], p2[0], p2[1])
-            # print("P3, P4 ", p3[0], p3[1], p4[0], p4[1])
-            # print("P5, P6 ", p5[0], p5[1], p6[0], p6[1])
 
             if p1[0] - 5 <= p3[0] <= p1[0] + 5 and p1[1] - 5 <= p3[1] <= p1[1] + 5:
                 return (p1[0], p1[1], self.theta())
@@ -321,4 +312,3 @@ class Borot:
                               (x1 - x4)) - self.theta()
 
             return (int(x3), int(y3)), (int(x4), int(y4)), (-fi03, -fi13), (-fi04, -fi14)
-

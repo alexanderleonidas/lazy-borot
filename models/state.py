@@ -49,7 +49,7 @@ class State:
             v = new_state.borot().speed()[0]
             w = new_state.borot().speed()[1]
             m = [new_state.borot().position()[0], new_state.borot().position()[1], new_state.borot().theta()] # Could be that this needs to be the filter from the previous state
-    
+
             new_state.borot().filter().localization(z, v, w, m, dt)
 
             return new_state

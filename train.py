@@ -37,7 +37,7 @@ def train():
     selection_percentage = 0.5
     error_range = 0.1
     mutate_percentage = 0.4
-    time_steps = 100
+    time_steps = 10
     generations = 10
 
     controller = Controller(population_size, selection_percentage, error_range, mutate_percentage, time_steps)
@@ -46,10 +46,17 @@ def train():
         test_network_output_range(individual)
 
     for generation in tqdm(range(generations)):
-        controller.generate_new_population(generation)
+        for robot_id, individual in enumerate(controller.population):
+            individual.update_score(controller.compute_fitness(individual, generation, robot_id))
+        controller.generate_new_population(generation, robot_id)
         logging.info(f'Generation: {generation}')
 
     logging.info('Finished Training...')
 
 if __name__ == '__main__':
     train()
+
+
+
+
+

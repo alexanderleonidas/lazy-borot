@@ -12,7 +12,6 @@ class Picasso:
         self.__surface = surface
         self.__font = font
         self.__ellipses = []
-        self.__dust = []  # Add this line to initialize dust particles
 
     def font(self) -> pygame.font.Font:
         return self.__font
@@ -125,6 +124,15 @@ class Picasso:
         self.__dust = dust  # Store the dust particles
         for dust_particle in dust:
             pygame.draw.rect(self.canvas(), self.dust_color(), dust_particle)
+    
+    def remove_dust(self, borot: Borot) -> int:
+        removed_dust = 0
+        borot_rect = pygame.Rect(borot.position()[0] - borot.radius(), borot.position()[1] - borot.radius(), borot.radius() * 2, borot.radius() * 2)
+        for dust_particle in self.__dust[:]:
+            if borot_rect.colliderect(dust_particle):
+                self.__dust.remove(dust_particle)
+                removed_dust += 1
+        return removed_dust
 
     def draw_beacons(self, borot):
         screen = self.canvas()

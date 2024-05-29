@@ -62,7 +62,7 @@ class Controller:
 
         current_stap = 1
 
-        for step in tqdm(range(self.time_steps), desc=f"Training Step {current_stap}", leave=False):
+        for step in tqdm(range(self.time_steps), desc=f"Training Step for Individual {robot_id}", leave=False):
             current_stap += 1
             sensor_inputs = self.get_inputs(state)
             motor_output, hidden_layer_output = individual.NN.runNN(sensor_inputs)

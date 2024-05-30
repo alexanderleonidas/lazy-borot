@@ -1,0 +1,15 @@
+Base Parameters:
+Generations: 10
+Time Steps: 100
+Population Size: 10
+Mutation Percentage: 10%
+Selection Percentage: 50%
+Error Percentage: 10%
+
+Hallway Experiments:
+- Base Experiment: hallway_gen_10_steps_100_pop_10_mut_0.1_sel_0.5_error_0.1_20240530_174142
+- Mutation 5%: hallway_gen_10_steps_100_pop_10_mut_0.05_sel_0.5_error_0.1_20240530_173400
+- Mutation 20%: hallway_gen_10_steps_100_pop_10_mut_0.2_sel_0.5_error_0.1_20240530_175139
+- Mutation 20% and Selection 30%: hallway_gen_10_steps_100_pop_10_mut_0.2_sel_0.3_error_0.1_20240530_180130
+- Mutation 10% and Selection 30%: hallway_gen_10_steps_100_pop_10_mut_0.1_sel_0.3_error_0.1_20240530_181850
+- Population: 25 and Selection: 30%

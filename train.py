@@ -43,12 +43,13 @@ def test_network_output_range(individual):
 def train():
     logging.info('Start Training...')
 
-    population_size = 50
-    selection_percentage = 0.1
+    population_size = 25
+    selection_percentage = 0.3
     error_range = 0.1
-    mutate_percentage = 0.05
-    time_steps = 200
-    generations = 50
+    mutate_percentage = 0.1
+    time_steps = 100
+    generations = 10
+    map = "hallway"
 
     controller = Controller(population_size, selection_percentage, error_range, mutate_percentage, time_steps)
 
@@ -57,9 +58,16 @@ def train():
 
     avg_fitness_over_generations = []
     best_fitness_over_generations = []
-    generation_indices = list(range(generations))
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    experiment_name = f"{map}_gen_{generations}_steps_{time_steps}_pop_{population_size}_mut_{mutate_percentage}_sel_{selection_percentage}_error_{error_range}"
+    save_dir = os.path.join(os.getcwd(), f'results/{experiment_name}_{timestamp}')
+    os.makedirs(save_dir, exist_ok=True)
+
+    save_every = 1
 
     for generation in tqdm(range(generations), desc="Epoch", leave=True):
+
         for robot_id, individual in enumerate(controller.population):
             individual.update_score(controller.compute_fitness(individual, generation, robot_id))
         controller.generate_new_population(generation, robot_id)
@@ -71,16 +79,19 @@ def train():
         best_fitness_over_generations.append(best_fitness)
         logging.info(f'Generation: {generation}, Avg Fitness: {avg_fitness}, Best Fitness: {best_fitness}')
 
-    # Create a directory with the current timestamp to save the plots
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    save_dir = os.path.join(os.getcwd(), f'training_results_{timestamp}')
-    os.makedirs(save_dir, exist_ok=True)
+        if generations % save_every == 0:
+            file_name = f"generation_{generation}"
+            save_plots(avg_fitness_over_generations, best_fitness_over_generations, list(range(generation+1)), save_dir,
+                       file_name)
 
-    save_plots(avg_fitness_over_generations, best_fitness_over_generations, generation_indices, save_dir)
+    file_name = f"final_result"
+    save_plots(avg_fitness_over_generations, best_fitness_over_generations, list(range(generations)), save_dir,
+               file_name)
 
     logging.info('Finished Training...')
 
-def save_plots(avg_fitness, best_fitness, generations, save_dir):
+
+def save_plots(avg_fitness, best_fitness, generations, save_dir, file_name):
     plt.figure()
     plt.plot(generations, avg_fitness, label='Average Fitness')
     plt.plot(generations, best_fitness, label='Best Fitness')
@@ -88,14 +99,9 @@ def save_plots(avg_fitness, best_fitness, generations, save_dir):
     plt.ylabel('Fitness')
     plt.legend()
     plt.title('Fitness Over Generations')
-    plt.savefig(os.path.join(save_dir, 'fitness_over_generations.png'))
+    plt.savefig(os.path.join(save_dir, f'{file_name}.png'))
     plt.close()
 
 
 if __name__ == '__main__':
     train()
-
-
-
-
-

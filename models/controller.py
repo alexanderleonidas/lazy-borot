@@ -18,6 +18,8 @@ OBSTACLE_SIZE = (40, 40)
 N_OBSTACLES = 45
 WALL_THICKNESS = 15
 
+HIDDEN = True
+
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -42,7 +44,8 @@ class Controller:
     def compute_fitness(self, individual, epoch,robot_id):
         pygame.init()
         pygame.display.set_caption(f"Epoch: {epoch + 1}, Robot ID {robot_id +1}")
-        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+        mode = pygame.SHOWN if not HIDDEN else pygame.HIDDEN
+        screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags=mode)
         surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
         world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 2)
         world.find_landmarks()

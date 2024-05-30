@@ -100,7 +100,7 @@ class Brain:
         motor_output = self.act_tanh.output
 
         # Ensure motor_output has exactly 7 elements
-        if len(motor_output) != 7:
-            motor_output = np.resize(motor_output, 7)
+        if len(motor_output) != 6:
+            motor_output = np.resize(motor_output, 6)
 
         return motor_output, hidden_layer_output

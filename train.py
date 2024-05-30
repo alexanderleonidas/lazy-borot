@@ -23,7 +23,7 @@ def select_action(motor_output):
     logging.info(f'Motor Output: {motor_output}')
     logging.info(f'Probabilities: {probabilities}')
 
-    action = np.random.choice(range(7), p=probabilities)
+    action = np.random.choice(range(6), p=probabilities)
     return action
 
 

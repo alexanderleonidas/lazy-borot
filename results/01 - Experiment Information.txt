@@ -15,3 +15,4 @@ Hallway Experiments:
 - Population: 25 and Selection: 30%: hallway_gen_10_steps_100_pop_25_mut_0.1_sel_0.3_error_0.1_20240530_182714
 - Population: 25: hallway_gen_10_steps_100_pop_25_mut_0.1_sel_0.5_error_0.1_20240530_192813
 - Population: 25 and Mutation 30%: hallway_gen_10_steps_100_pop_25_mut_0.2_sel_0.5_error_0.1_20240530_195359
+- Population: 50 and Mutation 20% and generations: 25: hallway_gen_25_steps_100_pop_50_mut_0.2_sel_0.5_error_0.1_20240530_214036

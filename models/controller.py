@@ -47,7 +47,7 @@ class Controller:
         mode = pygame.SHOWN if not HIDDEN else pygame.HIDDEN
         screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), flags=mode)
         surface = pygame.Surface((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.SRCALPHA)
-        world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 2)
+        world = god.build(SCREEN_WIDTH, SCREEN_HEIGHT, N_OBSTACLES, OBSTACLE_SIZE, WALL_THICKNESS, 3)
         world.find_landmarks()
         font = pygame.font.SysFont('Comic Sans MS', 10)
         picasso = Picasso(surface, font)

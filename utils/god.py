@@ -5,6 +5,7 @@ import pygame.event
 
 from maps.hallway import Hallway
 from maps.maze import Maze
+from maps.corner import Corner
 from models.action import Action
 from models.state import State
 from models.world import World
@@ -19,6 +20,9 @@ def build(width: int, height: int, n_obstacles: int, obstacle_size: tuple, wall_
     elif maze == 2:
         world = Hallway().build()
         world.spawn((100, 100))
+    elif maze == 3:
+        world = Corner().build()
+        world.spawn((50, 50))
     else:
         world = build_random(width, height, n_obstacles, obstacle_size, wall_thickness)
         make_dusty(width, height, num_particles=1000, dust_radius=10, world=world)

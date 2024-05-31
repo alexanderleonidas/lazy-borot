@@ -49,7 +49,7 @@ def train():
     mutate_percentage = 0.2
     time_steps = 100
     generations = 25
-    map = "hallway"
+    map = "Corner"
 
     controller = Controller(population_size, selection_percentage, error_range, mutate_percentage, time_steps)
 

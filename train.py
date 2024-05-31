@@ -43,12 +43,12 @@ def test_network_output_range(individual):
 def train():
     logging.info('Start Training...')
 
-    population_size = 50
+    population_size = 12
     selection_percentage = 0.5
     error_range = 0.1
     mutate_percentage = 0.2
     time_steps = 100
-    generations = 25
+    generations = 10
     map = "Corner"
 
     controller = Controller(population_size, selection_percentage, error_range, mutate_percentage, time_steps)

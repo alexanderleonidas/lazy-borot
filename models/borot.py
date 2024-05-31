@@ -9,7 +9,7 @@ from models.filter import KalmanFilter
 CHANGE_BY = 5
 N_SENSORS = 12
 
-SENSOR_LENGTH = 100
+SENSOR_LENGTH = 40
 
 SIGMA_MOV = 0.1
 SIGMA_ROT = 0.1
